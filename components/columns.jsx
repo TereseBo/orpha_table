@@ -1,10 +1,24 @@
 "use client"
-
+import { CopyIcon } from "lucide-react"
+import { Clipboard } from "lucide-react"
 
 export const columns = [
     {
         accessorKey: "orphacode",
         header: "ORPHAcode",
+        cell: ({ row }) => {
+            const rowcontent = row.original
+
+            return (
+                <div className="flex fler-row gap-2">
+                    {rowcontent.orphacode}
+                    <div >
+                        <Clipboard className="-my-2 hover:bg-sky-700 rounded" onClick={() => navigator.clipboard.writeText(rowcontent.orphacode)} size={16} />
+
+                    </div>
+                </div>
+            )
+        },
     },
     {
         accessorKey: "icd10",
