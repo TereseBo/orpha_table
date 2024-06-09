@@ -11,6 +11,9 @@ export function SearchBox({setSearchResults}) {
         console.log(e.target.value)
     }
     function getData() {
+        fetch(`/api/${searchMode}`)
+        .then(response => response.json())
+        .then(data => console.log(data))
 
     }
     return (
@@ -32,7 +35,7 @@ export function SearchBox({setSearchResults}) {
             <div className="flex flex-row my-2">
                 <label className="text-nowrap" for="input">Search disease:</label>
                 <Input onChange={handleSearchTermChange} className="mx-4 rounded" type="text" id="input" />
-                <button className="bg-sky-700 text-white rounded px-2">Search</button>
+                <button className="bg-sky-700 text-white rounded px-2" onClick={getData}>Search</button>
             </div>
         </div>
     );
