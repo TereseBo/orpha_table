@@ -1,25 +1,17 @@
 import { NextResponse } from 'next/server';
-import { fetchJson } from '../../fetchall';
+import { fetchOrphaInfo } from '../../fetchall';
+
 
 export async function GET(req,
   { params }) {
   const searchterm = params.term.toLowerCase();
   const code = searchterm.replace("orpha", '')
   try {
-    let data = await fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/orphacode/${code}/Name`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          apikey: process.env.ORPHA_API_KEY,
-
-        },
-      },
-    )
-    //let data = await response.json()
-    console.log(data)
+    let diseaseData = await fetchOrphaInfo(code)
+    console.log("in route")
+    console.log(diseaseData)
     return new NextResponse(
-      JSON.stringify(data),
+      JSON.stringify(diseaseData),
       { status: 200 }
     );
   } catch (error) {

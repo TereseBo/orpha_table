@@ -7,12 +7,37 @@ export const fetchJson = async (url, init = {}) => {
     return res.json();
 };
 
-// get JSON from multiple URLs 
-export const fetchAndSetAll = async (collection) => {
-    // fetch all data first
-    const allData = await Promise.all(
-        collection.map(({ url, init }) => fetchJson(url, init))
-    );
+// fetches ICD-10, ORPHAcode and all names from RD-CODE API
+export async function fetchOrphaInfo(code) {
 
-return allData;
+    const options = {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            apikey: process.env.ORPHA_API_KEY,
+
+        },
+    }
+
+    return Promise.all([
+
+        fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/orphacode/${code}/ICD10`,
+            { ...options }
+        ),
+        fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/orphacode/${code}/Synonym`,
+            { ...options }
+
+        ),
+    ]).then((values) => {
+        console.log(values);
+        let reducedData = values.reduce((accumulator, currentValue) => Object.assign({}, accumulator, currentValue))
+        reducedData.ReferencesICD10 = reducedData.References;
+        delete reducedData.References
+        reducedData.PreferredTerm = reducedData["Preferred term"]
+        delete reducedData["Preferred term"]
+        console.log(reducedData)
+        return reducedData
+    });
 };
+
+
