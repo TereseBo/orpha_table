@@ -21,12 +21,62 @@ export const columns = [
         },
     },
     {
-        accessorKey: "icd10",
+        accessorKey: "referencesICD10",
         header: "ICD-10",
+        cell: ({ row }) => {
+            const rowcontent = row.original
+
+            const ICD10Arr = rowcontent.referencesICD10.map((ICD10code, index) => {
+
+                return (
+                    <div key={rowcontent.ORPHAcode + ICD10code + index}>
+                        {ICD10code}
+                    </div>
+                )
+
+            })
+            return (
+                <div className="flex flex-col gap-2">
+                    {ICD10Arr}
+                </div>
+            )
+        },
     },
     {
-        accessorKey: "name",
+        accessorKey: "preferredTerm",
         header: "Prefered name",
+        cell: ({ row }) => {
+            const rowcontent = row.original
+
+            return (
+                <div className="flex flex-col gap-2">
+                    {rowcontent.preferredTerm}
+
+                </div>
+            )
+        },
+    },
+    {
+        accessorKey: "synonym",
+        header: "Synonyms",
+        cell: ({ row }) => {
+            const rowcontent = row.original
+
+            const synonymArr = rowcontent.synonyms.map((synonym, index) => {
+
+                return (
+                    <div key={rowcontent.ORPHAcode + synonym + index}>
+                        {synonym}
+                    </div>
+                )
+
+            })
+            return (
+                <div className="flex flex-col gap-2">
+                    {synonymArr}
+                </div>
+            )
+        },
     },
     {
         id: "actions",

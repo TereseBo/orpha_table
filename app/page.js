@@ -30,7 +30,7 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center p-8 bg-slate-400">
       <SearchBox setSearchResults={setSearchResults}/>
-      <DataTable columns={columns} data={diseases}/>
+      <DataTable columns={columns} data={searchResults}/>
 
 
     </main>

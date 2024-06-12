@@ -8,12 +8,15 @@ export function SearchBox({setSearchResults}) {
         setSearchMode(e.target.value)
     }
     function handleSearchTermChange(e) {
+        setSearchTerm(e.target.value)
         console.log(e.target.value)
     }
     function getData() {
-        fetch(`/api/${searchMode}`)
+        fetch(`/api/${searchMode}/${searchTerm}`)
         .then(response => response.json())
-        .then(data => console.log(data))
+        .then(data => {console.log(data)
+            setSearchResults(data)
+        })
 
     }
     return (

@@ -30,13 +30,15 @@ export async function fetchOrphaInfo(code) {
         ),
     ]).then((values) => {
         console.log(values);
+        const disease = {}
         let reducedData = values.reduce((accumulator, currentValue) => Object.assign({}, accumulator, currentValue))
-        reducedData.ReferencesICD10 = reducedData.References;
-        delete reducedData.References
-        reducedData.PreferredTerm = reducedData["Preferred term"]
-        delete reducedData["Preferred term"]
-        console.log(reducedData)
-        return reducedData
+        disease.referencesICD10 = reducedData.References.map(item=>item["Code ICD10"]);
+        disease.orphacode = reducedData.ORPHAcode
+        disease.preferredTerm = reducedData["Preferred term"]
+        disease.synonyms=reducedData.Synonym
+
+        console.log(disease)
+        return [disease]
     });
 };
 
