@@ -1,17 +1,20 @@
 import { FolderDownIcon} from 'lucide-react'
+import useStore from '@/zustandstore/orphastore'
+export function ActionButtons(disease) {
 
-export function ActionButtons() {
+    const removeItemFromResultList = useStore((state) => state.removeItemFromSearchResultList);
+    const addItemToSelectedDiseaseList = useStore((state) => state.addItemToSelectedDiseaseList);
 
     return (
         <div>
             <button
-                onClick={() => navigator.clipboard.writeText(rowcontent.orphacode)}
-                className="bg-red-700 hover:bg-red-500 text-white font-bold py2 px-1 rounded"
+                onClick={addItemToSelectedDiseaseList(disease)}
+                className="bg-green-700 hover:bg-green-500 text-white font-bold py2 px-1 rounded"
             >
-                <FolderDownIcon/>
+              Add to list  <FolderDownIcon/>
             </button>
             <button
-                onClick={() => navigator.clipboard.writeText(rowcontent.orphacode)}
+                onClick={removeItemFromResultList(disease)}
                 className="bg-red-700 hover:bg-red-500 text-white font-bold py2 px-1 rounded"
             >
                 X
