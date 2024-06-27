@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { fetchOrphaInfo } from '../../fetchall';
+import { fetchOrphaInfo } from '../../fetchorphainfo';
 
 
 export async function GET(req,
