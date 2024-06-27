@@ -29,7 +29,7 @@ export async function fetchOrphaInfo(code) {
 
         ),
     ]).then((values) => {
-        console.log(values);
+
         const disease = {}
         let reducedData = values.reduce((accumulator, currentValue) => Object.assign({}, accumulator, currentValue))
         disease.referencesICD10 = reducedData.References.map(item => item["Code ICD10"]) || ["-"]

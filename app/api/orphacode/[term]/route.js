@@ -8,8 +8,6 @@ export async function GET(req,
   const code = searchterm.replace("orpha", '')
   try {
     let diseaseData = await fetchOrphaInfo(code)
-    console.log("in route")
-    console.log(diseaseData)
     return new NextResponse(
       JSON.stringify(diseaseData),
       { status: 200 }
