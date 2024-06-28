@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { fetchJson } from '../../fetchorphainfo';
+import { fetchJson, fetchSynonyms } from '../../fetchorphainfo';
 import { fetchOrphaInfo } from '../../fetchorphainfo';
 
 
@@ -17,27 +17,47 @@ export async function GET(req, { params }) {
 
       },
     }
-    const response = await fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/ICD10/${icd10}`, { ...options }).then((values) => {
-      console.log("values: ", values)
-      //TODO: Extractb arrvay of diseases from values
-      /*       const disease = {}
-            let reducedData = values.reduce((accumulator, currentValue) => Object.assign({}, accumulator, currentValue))
-            disease.referencesICD10 = reducedData.References.map(item => item["Code ICD10"]) || ["-"]
-            disease.orphacode = reducedData.ORPHAcode
-            disease.preferredTerm = reducedData["Preferred term"] || ["-"]
-            disease.synonyms = reducedData.Synonym || ["-"] */
-      return []
-    });;
+    const diseaseData = await fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/ICD10/${icd10}`, { ...options }).then((values) => {
+      console.log("in then values")
+      // console.log("values: ", values.References)
+      let icd10Diseases = values.References.map(icd10Disease => {
+        let disease = {}
+        disease.orphacode = icd10Disease.ORPHAcode
+        disease.preferredTerm = icd10Disease["Preferred term"] || ["-"]
+        disease.referencesICD10 = [icd10Disease.ICD]
+        disease.synonyms = ['-']
 
-    console.log(response)
-    const icd10Diseases = response.data;
-    console.log(icd10Diseases)
-    // Fetch detailed information for each orphacode
-    const diseaseData = icd10Diseases.map(async (disease) => await fetchOrphaInfo(disease.orphacode));
+        return disease
+      })
+      // console.log(icd10Diseases)
 
 
+      return icd10Diseases
+    });
+
+    const completeDiseaseData = await diseaseData.map(async disease => {
+      console.log('diseasse')
+      console.log(disease)
+       fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/orphacode/${disease.orphacode}/Synonym`,
+        { ...options }).then(res => {
+          console.log('res.')
+          console.log(res)
+          if (res.Synonym) {
+            disease.synonyms = res.Synonym
+          }else{
+            disease.synonyms=['-']
+          }
+          const completeDisease = { ...disease }
+       console.log('completedisease')
+       console.log(completeDisease)
+          return completeDisease
+        })
+
+    })
+    console.log('completeDiseaseData')
+    console.log(completeDiseaseData)
     return new NextResponse(
-      JSON.stringify(diseaseData),
+      JSON.stringify(completeDiseaseData),
       { status: 200 }
     );
   } catch (error) {

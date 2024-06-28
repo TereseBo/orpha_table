@@ -7,7 +7,7 @@ export const fetchJson = async (url, init = {}) => {
     return res.json();
 };
 
-// fetches ICD-10, ORPHAcode and all names from RD-CODE API
+// fetches ICD-10, and all names from RD-CODE API by code
 export async function fetchOrphaInfo(code) {
 
     const options = {
@@ -40,4 +40,42 @@ export async function fetchOrphaInfo(code) {
     });
 };
 
+// fetches ICD-10, and all names from RD-CODE API by code
+export async function fetchSynonyms(diseaseData) {
+    console.log('in fetch synonyms ')
+
+
+    const options = {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            apikey: process.env.ORPHA_API_KEY,
+
+        },
+    }
+
+    const apiCalls = diseaseData.map(disease => {
+        return fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/orphacode/${disease.orphacode}/Synonym`,
+            { ...options }
+
+        )
+    })
+
+
+    return Promise.all(apiCalls).then((values) => {
+        console.log("In  fetch synonyms, VALUES")
+       console.log(values)
+       console.log("In  fetch synonyms, DISEASEDATA")
+       console.log(diseaseData)
+       console.log('The type check should be here')
+       Array.isArray(diseaseData)
+        diseaseData.array.forEach(element => {
+            const matchedItem = values.find(item => item.ORPHAcode === element.orphacode)
+            element.synonyms = matchedItem.Synonym || ['-']
+
+        });
+        console.log(diseaseData)
+        return diseaseData
+    })
+}
 

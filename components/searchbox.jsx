@@ -14,6 +14,7 @@ export function SearchBox() {
         console.log(e.target.value)
     }
     function getData() {
+        console.log(`/api/${searchMode}/${searchTerm}`)
         fetch(`/api/${searchMode}/${searchTerm}`)
         .then(response => response.json())
         .then(data => {console.log(data)
