@@ -13,16 +13,16 @@ export function ActionButtons({ disease }) {
     }
 
     return (
-        <div>
+        <div className="flex flex-row items-center gap-1">
             <button
                 onClick={handleSelection}
-                className="bg-green-700 hover:bg-green-500 text-white font-bold py2 px-1 rounded"
+                className="text-green-700 hover:text-green-500  text-xs text-white font-bold py2 px-1 rounded"
             >
-                Add to list  <FolderDownIcon />
+                <FolderDownIcon className='' />
             </button>
             <button
                 onClick={handleRemove}
-                className="bg-red-700 hover:bg-red-500 text-white font-bold py2 px-1 rounded"
+                className="text-red-700 hover:text-white font-bold py2 px-1 rounded border-solid border-2 border-red-700 hover:bg-red-400"
             >
                 X
             </button>

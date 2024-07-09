@@ -7,7 +7,7 @@ export const RemoveButton = ({ disease }) => {
         removeItemFromSelectedDiseaseList(disease);
     };
 
-    return <button onClick={handleRemove}>Remove</button>;
+    return <button className="bg-red-700 hover:bg-red-500 text-white font-bold py2 px-1 rounded" onClick={handleRemove}>X</button>;
 };
 
 export default RemoveButton;
