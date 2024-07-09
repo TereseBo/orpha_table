@@ -24,6 +24,7 @@ export async function fetchOrphaInfo(code) {
     return Promise.all([
         fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/orphacode/${code}/ICD10`, { ...options }),
         fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/orphacode/${code}/Synonym`, { ...options }),
+        fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/orphacode/${code}/ClassificationLevel`, { ...options })
     ]).then((values) => {
         const disease = {};
         let reducedData = values.reduce((accumulator, currentValue) => Object.assign({}, accumulator, currentValue));
@@ -31,7 +32,13 @@ export async function fetchOrphaInfo(code) {
         disease.orphacode = reducedData.ORPHAcode;
         disease.preferredTerm = reducedData["Preferred term"] || ["-"];
         disease.synonyms = reducedData.Synonym || ["-"];
+        disease.classificationLevel = reducedData.ClassificationLevel || "-";
         return [disease];
+    }).catch(error => {
+        if (error.message.includes('404')) {
+            return [];  // Return an empty array for 404 errors
+        }
+        throw error;  // Re-throw other errors
     });
 };
 
@@ -139,7 +146,7 @@ export async function fetchICD10Info(icd10) {
             });
         }).catch(error => {
             if (error.message.includes('404')) {
-                return ['-'];  // Return an empty array for 404 errors
+                return [];  // Return an empty array for 404 errors
             }
             throw error;  // Re-throw other errors
         });
