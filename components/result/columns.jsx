@@ -80,6 +80,19 @@ export const columns = [
         },
     },
     {
+        accessorKey: "classificationLevel",
+        header: "Classification level",
+        cell: ({ row }) => {
+            const rowcontent = row.original
+
+            return (
+                <div className="flex fler-row gap-2">
+                    {rowcontent.classificationLevel}
+                </div>
+            )
+        },
+    },
+    {
         id: "actions",
         cell: ({ row }) => {
             const rowcontent = row.original

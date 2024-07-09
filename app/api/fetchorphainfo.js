@@ -92,7 +92,33 @@ export async function fetchSynonyms(diseaseData) {
     });
 }
 
+export async function fetchClassificationLevel(diseaseData) {
+    const options = {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            apikey: process.env.ORPHA_API_KEY,
+        },
+    };
 
+    const apiCalls = diseaseData.map(disease => {
+        return fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/orphacode/${disease.orphacode}/ClassificationLevel`, { ...options })
+            .catch(error => {
+                if (error.message.includes('404')) {
+                    return { ClassificationLevel: '-' };  // Fallback for missing classification level
+                }
+                throw error;  // Re-throw other errors
+            });
+    });
+
+    return Promise.all(apiCalls).then((values) => {
+        diseaseData.forEach((disease, index) => {
+            const classificationLevelData = values[index];
+            disease.classificationLevel = classificationLevelData.ClassificationLevel || '-';
+        });
+        return diseaseData;
+    });
+}
 export async function fetchICD10Info(icd10) {
     const options = {
         method: "GET",
@@ -122,7 +148,12 @@ export async function fetchICD10Info(icd10) {
         return diseaseData;  // Return early if no diseases found
     }
 
-    const completeDiseaseData = await fetchSynonyms(diseaseData);
+    const diseaseWithSynonyms = await fetchSynonyms(diseaseData);
+
+
+    // Fetch classification level for each disease
+    const completeDiseaseData = await fetchClassificationLevel(diseaseWithSynonyms);
+
     return completeDiseaseData;
 }
 
@@ -183,8 +214,14 @@ export async function fetchApproximateNameInfo(name) {
         }
     });
 
+
     // Fetch ICD-10 codes for each disease
-    const completeDiseaseData = await fetchICD10Codes(diseaseWithSynonyms);
+    const diseaseWithICD10 = await fetchICD10Codes(diseaseWithSynonyms);
+
+    // Fetch classification level for each disease
+    const completeDiseaseData = await fetchClassificationLevel(diseaseWithICD10);
+
+
 
     return completeDiseaseData;
 }
