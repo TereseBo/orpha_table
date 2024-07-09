@@ -1,14 +1,14 @@
 import { NextResponse } from 'next/server';
-import { fetchICD10Info } from '../../fetchorphainfo';
+import { fetchApproximateNameInfo } from '../../fetchorphainfo';
 
 export async function GET(req, { params }) {
-    const icd10 = params.term;
+    const name = params.term;
 
     try {
-        const diseaseData = await fetchICD10Info(icd10);
+        const diseaseData = await fetchApproximateNameInfo(name);
         if (diseaseData.length === 0) {
             return new NextResponse(
-                JSON.stringify({ message: `No data found for ICD-10 code ${icd10}` }),
+                JSON.stringify({ message: `No data found for name ${name}` }),
                 { status: 404 }
             );
         }
@@ -17,9 +17,9 @@ export async function GET(req, { params }) {
             { status: 200 }
         );
     } catch (error) {
-        console.error(`Error fetching data for icdCode ${icd10}:`, error);
+        console.error(`Error fetching data for name ${name}:`, error);
         return new NextResponse(
-            'Oops, something went wrong when getting the ICD10 data',
+            'Oops, something went wrong when getting the data',
             { status: 500 }
         );
     }

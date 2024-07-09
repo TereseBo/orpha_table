@@ -2,7 +2,11 @@
 export const fetchJson = async (url, init = {}) => {
     const res = await fetch(url, init);
     if (!res.ok) {
-        throw new Error(`${res.status}: ${await res.text()}`);
+        const errorMessage = `${res.status}: ${await res.text()}`;
+        if (res.status === 404) {
+            throw new Error(`404: Resource not found at ${url}`);
+        }
+        throw new Error(errorMessage);
     }
     return res.json();
 };
@@ -31,7 +35,35 @@ export async function fetchOrphaInfo(code) {
     });
 };
 
+export async function fetchICD10Codes(diseaseData) {
+    const options = {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            apikey: process.env.ORPHA_API_KEY,
+        },
+    };
 
+    const apiCalls = diseaseData.map(disease => {
+        return fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/orphacode/${disease.orphacode}/ICD10`, { ...options })
+            .catch(error => {
+                if (error.message.includes('404')) {
+                    return { References: [] };  // Fallback for missing ICD-10 codes
+                }
+                throw error;  // Re-throw other errors
+            });
+    });
+
+    return Promise.all(apiCalls).then((values) => {
+        diseaseData.forEach((disease, index) => {
+            const icd10Data = values[index];
+            disease.referencesICD10 = Array.isArray(icd10Data.References) && icd10Data.References.length > 0
+                ? icd10Data.References.map(ref => ref["Code ICD10"])
+                : ['-'];
+        });
+        return diseaseData;
+    });
+}
 export async function fetchSynonyms(diseaseData) {
     const options = {
         method: "GET",
@@ -42,17 +74,24 @@ export async function fetchSynonyms(diseaseData) {
     };
 
     const apiCalls = diseaseData.map(disease => {
-        return fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/orphacode/${disease.orphacode}/Synonym`, { ...options });
+        return fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/orphacode/${disease.orphacode}/Synonym`, { ...options })
+            .catch(error => {
+                if (error.message.includes('404')) {
+                    return { Synonym: ['-'] };  // Fallback for missing synonyms
+                }
+                throw error;  // Re-throw other errors
+            });
     });
 
     return Promise.all(apiCalls).then((values) => {
         diseaseData.forEach((disease, index) => {
             const synonymsData = values[index];
-            disease.synonyms = synonymsData?.Synonym?.length > 0 ? synonymsData.Synonym : ['-'];
+            disease.synonyms = Array.isArray(synonymsData.Synonym) && synonymsData.Synonym.length > 0 ? synonymsData.Synonym : ['-'];
         });
         return diseaseData;
     });
 }
+
 
 export async function fetchICD10Info(icd10) {
     const options = {
@@ -72,8 +111,80 @@ export async function fetchICD10Info(icd10) {
                     referencesICD10: [icd10Disease.ICD],
                 };
             });
+        }).catch(error => {
+            if (error.message.includes('404')) {
+                return ['-'];  // Return an empty array for 404 errors
+            }
+            throw error;  // Re-throw other errors
         });
 
+    if (diseaseData.length === 0) {
+        return diseaseData;  // Return early if no diseases found
+    }
+
     const completeDiseaseData = await fetchSynonyms(diseaseData);
+    return completeDiseaseData;
+}
+
+export async function fetchApproximateNameInfo(name) {
+    const options = {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            apikey: process.env.ORPHA_API_KEY,
+        },
+    };
+
+    // Fetch data using ApproximateName endpoint
+    const diseaseData = await fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/ApproximateName/${name}`, { ...options })
+        .then((values) => {
+            return values.map(disease => {
+                return {
+                    orphacode: disease.ORPHAcode,
+                    preferredTerm: disease["Preferred term"] || "-",
+                };
+            });
+        }).catch(error => {
+            if (error.message.includes('404')) {
+                return [];  // Return an empty array for 404 errors
+            }
+            throw error;  // Re-throw other errors
+        });
+
+    if (diseaseData.length === 0) {
+        return diseaseData;  // Return early if no diseases found
+    }
+
+    // Fetch synonyms for each disease
+    let diseaseWithSynonyms = await fetchSynonyms(diseaseData);
+
+    // Fetch synonyms using ApproximateName endpoint
+    const synonymData = await fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/ApproximateName/${name}/Synonym`, { ...options })
+        .catch(error => {
+            if (error.message.includes('404')) {
+                return [];  // Return an empty array for 404 errors
+            }
+            throw error;  // Re-throw other errors
+        });
+
+    // Merge synonym data with disease data based on ORPHAcode
+    synonymData.forEach(synonym => {
+        const existingDisease = diseaseWithSynonyms.find(disease => disease.orphacode === synonym.ORPHAcode);
+        if (existingDisease) {
+            existingDisease.synonyms = Array.isArray(synonym.Synonym) && synonym.Synonym.length > 0
+                ? [...new Set([...existingDisease.synonyms, ...synonym.Synonym])]
+                : existingDisease.synonyms;
+        } else {
+            diseaseWithSynonyms.push({
+                orphacode: synonym.ORPHAcode,
+                preferredTerm: synonym["Preferred term"] || "-",
+                synonyms: Array.isArray(synonym.Synonym) && synonym.Synonym.length > 0 ? synonym.Synonym : ['-'],
+            });
+        }
+    });
+
+    // Fetch ICD-10 codes for each disease
+    const completeDiseaseData = await fetchICD10Codes(diseaseWithSynonyms);
+
     return completeDiseaseData;
 }
