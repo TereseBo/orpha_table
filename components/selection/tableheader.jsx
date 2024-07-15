@@ -1,24 +1,39 @@
 import { Input } from "@/components/ui/input"
 import useStore from '@/zustandstore/orphastore'
+import writeXlsxFile from 'write-excel-file'
+import { headerStyle, schema } from "./excelschema/schema";
+
+
 
 export function Tableheader() {
+    const selectedDiseaseList = useStore((state) => state.selectedDiseaseList);
     function handleHeaderChange(e) {
         console.log(e.target.value)
     }
 
-    function printData() {
+    async function printData() {
         console.log("print data")
+
+   
+
+        await writeXlsxFile(selectedDiseaseList, {
+            schema,
+            headerStyle,
+            fileName: 'file.xlsx',
+            stickyRowsCount: 1
+          })
     }
     return (
         <>
             <h1>Selected Diseases</h1>
-            <div className="rounded-md border">
+            <div className="rounded-md border p-2 ">
 
-                <div className="flex flex-row m-2 content-center">
+                <div className="flex flex-rowcontent-center my-2">
                     <label className="text-nowrap self-center" htmlFor="input">Table header:</label>
                     <Input onChange={handleHeaderChange} className="mx-4 rounded" type="text" id="input" />
-                    <button className="bg-sky-700 text-white rounded px-2" onClick={printData}>Print</button>
+                    
                 </div>
+                <button className="bg-sky-700 text-white rounded px-2" onClick={printData}>Print to file</button>
 
             </div>
         </>
