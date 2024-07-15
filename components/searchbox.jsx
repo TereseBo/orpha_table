@@ -1,8 +1,10 @@
 import { useState } from "react"
 import { Input } from "@/components/ui/input"
-export function SearchBox({setSearchResults}) {
+import useStore from '@/zustandstore/orphastore'
+export function SearchBox() {
     const [searchMode, setSearchMode] = useState("orphacode")
     const [searchTerm, setSearchTerm] = useState("")
+    const setSearchResultList = useStore((state) => state.setSearchResultList)
     function handleSearchModeChange(e) {
         console.log(e.target.value)
         setSearchMode(e.target.value)
@@ -12,10 +14,11 @@ export function SearchBox({setSearchResults}) {
         console.log(e.target.value)
     }
     function getData() {
+        console.log(`/api/${searchMode}/${searchTerm}`)
         fetch(`/api/${searchMode}/${searchTerm}`)
         .then(response => response.json())
         .then(data => {console.log(data)
-            setSearchResults(data)
+            setSearchResultList(data)
         })
 
     }

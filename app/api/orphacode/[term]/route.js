@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { fetchOrphaInfo } from '../../fetchall';
+import { fetchOrphaInfo } from '../../fetchorphainfo';
 
 
 export async function GET(req,
@@ -8,8 +8,12 @@ export async function GET(req,
   const code = searchterm.replace("orpha", '')
   try {
     let diseaseData = await fetchOrphaInfo(code)
-    console.log("in route")
-    console.log(diseaseData)
+    if (diseaseData.length === 0) {
+      return new NextResponse(
+          JSON.stringify({ message: `No data found for ICD-10 code ${icd10}` }),
+          { status: 404 }
+      );
+  }
     return new NextResponse(
       JSON.stringify(diseaseData),
       { status: 200 }
