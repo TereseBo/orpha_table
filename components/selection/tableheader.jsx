@@ -2,7 +2,7 @@ import { Input } from "@/components/ui/input"
 import useStore from '@/zustandstore/orphastore'
 import writeXlsxFile from 'write-excel-file'
 import { headerStyle, schema } from "./excelschema/schema";
-
+import Link from 'next/link'
 
 
 export function Tableheader() {
@@ -11,7 +11,7 @@ export function Tableheader() {
         console.log(e.target.value)
     }
 
-    async function printData() {
+    async function printDataExcel() {
         console.log("print data")
 
    
@@ -23,6 +23,8 @@ export function Tableheader() {
             stickyRowsCount: 1
           })
     }
+
+    
     return (
         <>
             <h1>Selected Diseases</h1>
@@ -33,8 +35,10 @@ export function Tableheader() {
                     <Input onChange={handleHeaderChange} className="mx-4 rounded" type="text" id="input" />
                     
                 </div>
-                <button className="bg-sky-700 text-white rounded px-2" onClick={printData}>Print to file</button>
-
+                <div  className="flex flex-rowcontent-center my-2 gap-2">
+                <button className="bg-sky-700 text-white rounded px-2" onClick={printDataExcel}>Download Excel</button>
+                <Link className="bg-sky-700 text-white rounded px-2" href={'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(selectedDiseaseList, null, '\t'))} download='file' target="_blank">Download JSON</Link>
+                </div>
             </div>
         </>
     )
