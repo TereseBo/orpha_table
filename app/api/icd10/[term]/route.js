@@ -17,7 +17,6 @@ export async function GET(req, { params }) {
             { status: 200 }
         );
     } catch (error) {
-        console.error(`Error fetching data for icdCode ${icd10}:`, error);
         return new NextResponse(
             'Something went wrong when getting the diseases, please try again later',
             { status: 500 }

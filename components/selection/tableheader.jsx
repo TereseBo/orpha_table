@@ -19,7 +19,6 @@ export function Tableheader() {
         return true
     }
     function handleHeaderChange(e) {
-
         setHeading(e.target.value)
     }
 
@@ -35,9 +34,10 @@ export function Tableheader() {
                 stickyRowsCount: 1,
                 sheet: heading === "" ? 'codeList' : heading + ''
             })
+
             toast.success('Excel file created')
+
         } catch (error) {
-            console.error('Error creating excel file', error)
             toast.error('Something went wrong creating excel file')
         }
     }
@@ -55,6 +55,7 @@ export function Tableheader() {
             link.download = heading === "" ? 'orphalist_' + getDateString() + '.json' : heading + '_' + getDateString() + '.json'
             link.target = '_blank'
             link.click();
+
             toast.success('JSON file created')
 
         } catch (error) {
