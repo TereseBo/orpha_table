@@ -25,7 +25,7 @@ export function Tableheader() {
         await writeXlsxFile(selectedDiseaseList, {
             schema,
             headerStyle,
-            fileName: heading === "" ? 'orphalist_' + getDateString() + '.xlsx' : heading + getDateString()  + '.xlsx',
+            fileName: heading === "" ? 'orphalist_' + getDateString() + '.xlsx' : heading +'_'+ getDateString()  + '.xlsx',
             stickyRowsCount: 1,
             sheet: heading === "" ? 'codeList' : heading + ''
         })
@@ -44,7 +44,7 @@ export function Tableheader() {
                 </div>
                 <div className="flex flex-rowcontent-center my-2 gap-2">
                     <button className="bg-sky-700 text-white rounded px-2" onClick={printDataExcel}>Download Excel</button>
-                    <Link className="bg-sky-700 text-white rounded px-2" href={'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(selectedDiseaseList, null, '\t'))} download={ heading === "" ? 'orphalist_' + getDateString() + '.json' : heading + getDateString()  + '.json'} target="_blank">Download JSON</Link>
+                    <Link className="bg-sky-700 text-white rounded px-2" href={'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(selectedDiseaseList, null, '\t'))} download={ heading === "" ? 'orphalist_' + getDateString() + '.json' : heading +'_'+ getDateString()  + '.json'} target="_blank">Download JSON</Link>
                 </div>
             </div>
         </>
