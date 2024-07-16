@@ -38,8 +38,8 @@ export function SearchBox() {
                     <input type="radio" name="options" value="name" id="name" checked={searchMode === "name"} onChange={handleSearchModeChange}/>
                 </div>
             </div>
-            <div className="flex flex-row my-2">
-                <label className="text-nowrap" htmlFor="input">Search disease:</label>
+            <div className="flex flex-row my-2 content-center">
+                <label className="text-nowrap self-center" htmlFor="input">Search disease:</label>
                 <Input onChange={handleSearchTermChange} className="mx-4 rounded" type="text" id="input" />
                 <button className="bg-sky-700 text-white rounded px-2" onClick={getData}>Search</button>
             </div>
