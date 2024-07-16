@@ -19,7 +19,7 @@ export async function GET(req, { params }) {
     } catch (error) {
         console.error(`Error fetching data for icdCode ${icd10}:`, error);
         return new NextResponse(
-            'Oops, something went wrong when getting the ICD10 data',
+            'Something went wrong when getting the diseases, please try again later',
             { status: 500 }
         );
     }

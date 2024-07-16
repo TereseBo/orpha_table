@@ -10,7 +10,7 @@ export async function GET(req,
     let diseaseData = await fetchOrphaInfo(code)
     if (diseaseData.length === 0) {
       return new NextResponse(
-          JSON.stringify({ message: `No data found for ICD-10 code ${icd10}` }),
+          JSON.stringify({ message: `No data found for ORPHA code ${code}` }),
           { status: 404 }
       );
   }
@@ -21,7 +21,7 @@ export async function GET(req,
   } catch (error) {
     console.log('api/orphacode/[term]/GET', error);
     return new NextResponse(
-      'Ooops, something went wrong when getting the orphacode',
+      'Something went wrong when getting the orphacode, please try again later',
       { status: 500 }
     );
   }

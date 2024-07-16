@@ -19,7 +19,7 @@ export async function GET(req, { params }) {
     } catch (error) {
         console.error(`Error fetching data for name ${name}:`, error);
         return new NextResponse(
-            'Oops, something went wrong when getting the data',
+            'Something went wrong when getting the orphacodes, please try again later',
             { status: 500 }
         );
     }
