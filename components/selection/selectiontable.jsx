@@ -9,7 +9,7 @@ export function SelectionTable() {
 
     const selectedDiseaseList = useStore((state) => state.selectedDiseaseList);
     return (
-        <div>
+        <div className="m-2">
         <Tableheader/>
         <DataTable columns={columns} data={selectedDiseaseList} />
         </div>

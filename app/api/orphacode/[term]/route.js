@@ -19,7 +19,7 @@ export async function GET(req,
       { status: 200 }
     );
   } catch (error) {
-    console.log('api/orphacode/[term]/GET', error);
+
     return new NextResponse(
       'Something went wrong when getting the orphacode, please try again later',
       { status: 500 }
