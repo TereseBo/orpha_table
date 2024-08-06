@@ -17,7 +17,6 @@ export async function GET(req, { params }) {
             { status: 200 }
         );
     } catch (error) {
-
         return new NextResponse(
             'Something went wrong when getting the orphacodes, please try again later',
             { status: 500 }
