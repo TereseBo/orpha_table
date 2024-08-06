@@ -1,4 +1,3 @@
-// performs a request and resolves with JSON
 export const fetchJson = async (url, init = {}) => {
     const res = await fetch(url, init);
     if (!res.ok) {
@@ -24,16 +23,24 @@ export async function fetchOrphaInfo(code) {
     return Promise.all([
         fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/orphacode/${code}/ICD10`, { ...options }),
         fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/orphacode/${code}/Synonym`, { ...options }),
-        fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/orphacode/${code}/ClassificationLevel`, { ...options })
+        fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/orphacode/${code}/ClassificationLevel`, { ...options }),
+        fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/orphacode/${code}/Status`, { ...options }),
+
     ]).then((values) => {
+
         const disease = {};
         let reducedData = values.reduce((accumulator, currentValue) => Object.assign({}, accumulator, currentValue));
-        disease.referencesICD10 = reducedData.References.map(item => item["Code ICD10"]) || ["-"];
-        disease.orphacode = reducedData.ORPHAcode;
-        disease.preferredTerm = reducedData["Preferred term"] || ["-"];
-        disease.synonyms = reducedData.Synonym || ["-"];
-        disease.classificationLevel = reducedData.ClassificationLevel || "-";
-        return [disease];
+        if (reducedData.Status !== "Active") {
+            throw new Error(`404: Resource not active`);
+        } else {
+            disease.referencesICD10 = reducedData.References.map(item => item["Code ICD10"]) || ["-"];
+            disease.orphacode = reducedData.ORPHAcode;
+            disease.preferredTerm = reducedData["Preferred term"] || ["-"];
+            disease.synonyms = reducedData.Synonym || ["-"];
+            disease.classificationLevel = reducedData.ClassificationLevel || "-";
+
+            return [disease];
+        }
     }).catch(error => {
         if (error.message.includes('404')) {
             return [];  // Return an empty array for 404 errors
@@ -42,6 +49,7 @@ export async function fetchOrphaInfo(code) {
     });
 };
 
+// fetches ICD-10 by ORPHAcode for disease objects in an array
 export async function fetchICD10Codes(diseaseData) {
     const options = {
         method: "GET",
@@ -55,7 +63,7 @@ export async function fetchICD10Codes(diseaseData) {
         return fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/orphacode/${disease.orphacode}/ICD10`, { ...options })
             .catch(error => {
                 if (error.message.includes('404')) {
-                    return { References: [] };  // Fallback for missing ICD-10 codes
+                    return { ORPHAcode: disease.orphacode, References: [] };  // Fallback for missing ICD-10 codes
                 }
                 throw error;  // Re-throw other errors
             });
@@ -63,7 +71,8 @@ export async function fetchICD10Codes(diseaseData) {
 
     return Promise.all(apiCalls).then((values) => {
         diseaseData.forEach((disease, index) => {
-            const icd10Data = values[index];
+
+            const icd10Data = values.find(item => { return item.ORPHAcode === disease.orphacode });
             disease.referencesICD10 = Array.isArray(icd10Data.References) && icd10Data.References.length > 0
                 ? icd10Data.References.map(ref => ref["Code ICD10"])
                 : ['-'];
@@ -84,7 +93,7 @@ export async function fetchSynonyms(diseaseData) {
         return fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/orphacode/${disease.orphacode}/Synonym`, { ...options })
             .catch(error => {
                 if (error.message.includes('404')) {
-                    return { Synonym: ['-'] };  // Fallback for missing synonyms
+                    return { ORPHAcode: disease.orphacode, Synonym: ['-'] };  // Fallback for missing synonyms
                 }
                 throw error;  // Re-throw other errors
             });
@@ -92,7 +101,7 @@ export async function fetchSynonyms(diseaseData) {
 
     return Promise.all(apiCalls).then((values) => {
         diseaseData.forEach((disease, index) => {
-            const synonymsData = values[index];
+            const synonymsData = values.find(item => { return item.ORPHAcode === disease.orphacode });
             disease.synonyms = Array.isArray(synonymsData.Synonym) && synonymsData.Synonym.length > 0 ? synonymsData.Synonym : ['-'];
         });
         return diseaseData;
@@ -112,7 +121,7 @@ export async function fetchClassificationLevel(diseaseData) {
         return fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/orphacode/${disease.orphacode}/ClassificationLevel`, { ...options })
             .catch(error => {
                 if (error.message.includes('404')) {
-                    return { ClassificationLevel: '-' };  // Fallback for missing classification level
+                    return { ORPHAcode: disease.orphacode, ClassificationLevel: '-' };  // Fallback for missing classification level
                 }
                 throw error;  // Re-throw other errors
             });
@@ -120,7 +129,7 @@ export async function fetchClassificationLevel(diseaseData) {
 
     return Promise.all(apiCalls).then((values) => {
         diseaseData.forEach((disease, index) => {
-            const classificationLevelData = values[index];
+            const classificationLevelData = values.find(item => { return item.ORPHAcode === disease.orphacode });
             disease.classificationLevel = classificationLevelData.ClassificationLevel || '-';
         });
         return diseaseData;
@@ -152,10 +161,14 @@ export async function fetchICD10Info(icd10) {
         });
 
     if (diseaseData.length === 0) {
-        return diseaseData;  // Return early if no diseases found
+        return diseaseData;
     }
 
-    const diseaseWithSynonyms = await fetchSynonyms(diseaseData);
+    //Remove inactive diseases
+    const activeDiseaseData = await removeInactive(diseaseData);
+
+    //Fetch synonyms for each disease
+    const diseaseWithSynonyms = await fetchSynonyms(activeDiseaseData);
 
 
     // Fetch classification level for each disease
@@ -192,9 +205,11 @@ export async function fetchApproximateNameInfo(name) {
     if (diseaseData.length === 0) {
         return diseaseData;  // Return early if no diseases found
     }
+    //Remove inactive diseases
+    const activeDiseaseData = await removeInactive(diseaseData);
 
     // Fetch synonyms for each disease
-    let diseaseWithSynonyms = await fetchSynonyms(diseaseData);
+    let diseaseWithSynonyms = await fetchSynonyms(activeDiseaseData);
 
     // Fetch synonyms using ApproximateName endpoint
     const synonymData = await fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/ApproximateName/${name}/Synonym`, { ...options })
@@ -221,14 +236,39 @@ export async function fetchApproximateNameInfo(name) {
         }
     });
 
-
     // Fetch ICD-10 codes for each disease
     const diseaseWithICD10 = await fetchICD10Codes(diseaseWithSynonyms);
 
     // Fetch classification level for each disease
     const completeDiseaseData = await fetchClassificationLevel(diseaseWithICD10);
 
-
-
     return completeDiseaseData;
+}
+
+//Removes inactive diseases from diseaseData
+async function removeInactive(diseaseData) {
+    const options = {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            apikey: process.env.ORPHA_API_KEY,
+        },
+    };
+
+    const apiCalls = diseaseData.map(disease => {
+        return fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/orphacode/${disease.orphacode}/Status`, { ...options })
+            .catch(error => {
+                if (error.message.includes('404')) {
+                    return { ORPHAcode: disease.orphacode, Status: 'Active' };  // Fallback for missing status
+                }
+                throw error;  // Re-throw other errors
+            });
+    });
+
+    return Promise.all(apiCalls).then((values) => {
+        return diseaseData.filter((disease, index) => {
+            const statusData = values.find(item => { return item.ORPHAcode === disease.orphacode });
+            return statusData.Status === 'Active';
+        });
+    });
 }
