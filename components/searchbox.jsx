@@ -63,6 +63,8 @@ export function SearchBox() {
                 }
                 setSearchResultList(data)
             }).catch(error => {
+                console.log('This was the error error in searchbox')
+                console.log(error)
                 setSearchResultList([])
                 toast.error('Something went wrong, please try again later')
             })
