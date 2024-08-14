@@ -57,11 +57,13 @@ export function SearchBox() {
             .then(data => {
 
                 if (data.message) {
+                    setSearchResultList([])
                     toast.error(data.message)
                     return
                 }
                 setSearchResultList(data)
             }).catch(error => {
+                setSearchResultList([])
                 toast.error('Something went wrong, please try again later')
             })
     }
