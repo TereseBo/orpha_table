@@ -10,7 +10,8 @@ export async function fetchOrphaInfo(code) {
         },
     };
 
-    return Promise.all([
+    return Promise.allSettled([
+        fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/orphacode/${code}/Name`, { ...options }),
         fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/orphacode/${code}/ICD10`, { ...options }),
         fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/orphacode/${code}/Synonym`, { ...options }),
         fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/orphacode/${code}/ClassificationLevel`, { ...options }),
@@ -19,11 +20,15 @@ export async function fetchOrphaInfo(code) {
     ]).then((values) => {
 
         const disease = {};
-        let reducedData = values.reduce((accumulator, currentValue) => Object.assign({}, accumulator, currentValue));
+        let reducedData = {};
+        values.forEach((value) => {
+            reducedData = Object.assign({}, reducedData, value.value);
+        });
+
         if (reducedData.Status !== "Active") {
             throw new Error(`404: Resource not active`);
         } else {
-            disease.referencesICD10 = reducedData.References.map(item => item["Code ICD10"]) || ["-"];
+            disease.referencesICD10 = Array.isArray(reducedData.References) ? reducedData.References.map(item => item["Code ICD10"]) : ["-"];
             disease.orphacode = reducedData.ORPHAcode;
             disease.preferredTerm = reducedData["Preferred term"] || ["-"];
             disease.synonyms = reducedData.Synonym || ["-"];
@@ -32,7 +37,10 @@ export async function fetchOrphaInfo(code) {
             return [disease];
         }
     }).catch(error => {
+        console.log('This was the error error')
+        console.log(error)
         if (error.message.includes('404')) {
+
             return [];  // Return an empty array for 404 errors
         }
         throw error;  // Re-throw other errors
