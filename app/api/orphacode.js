@@ -37,8 +37,6 @@ export async function fetchOrphaInfo(code) {
             return [disease];
         }
     }).catch(error => {
-        console.log('This was the error error')
-        console.log(error)
         if (error.message.includes('404')) {
 
             return [];  // Return an empty array for 404 errors

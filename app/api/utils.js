@@ -20,6 +20,7 @@ export async function fetchICD10Codes(diseaseData) {
         },
     };
 
+    //Create an array of fetch calls for each disease 
     const apiCalls = diseaseData.map(disease => {
         return fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/orphacode/${disease.orphacode}/ICD10`, { ...options })
             .catch(error => {

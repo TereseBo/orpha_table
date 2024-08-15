@@ -10,56 +10,60 @@ export async function fetchApproximateNameInfo(name) {
         },
     };
 
-    // Fetch data using ApproximateName endpoint
-    const nameSearchData = await fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/ApproximateName/${name}`, { ...options })
-        .then((values) => {
-            return values.map(disease => {
-                return {
-                    orphacode: disease.ORPHAcode,
-                    preferredTerm: disease["Preferred term"] || "-",
-                };
+    // Fetch orphacodes using ApproximateName and ApproximateSynonyms endpoint
+    const diseaseRawList = await Promise.allSettled([
+        fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/ApproximateName/${name}`, { ...options }),
+        fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/ApproximateName/${name}/Synonym`, { ...options }),
+    ]).then((values) => {
+        // Combine and return results from both endpoints
+        let diseaseData = [];
+        values.forEach((value) => {
+            if (value.status === 'fulfilled') {
+
+                const valueSet = [... new Set([...value.value])]
+                diseaseData = [...diseaseData, ...valueSet];
+            }
+        });
+
+        return [... new Set([...diseaseData])]
+
+    }).catch(error => {
+
+        if (error.message.includes('404')) {
+
+            return [];  // Return an empty array for 404 errors
+        }
+        throw error;  // Re-throw other errors
+    });
+    let diseaseList = diseaseRawList.map(disease => {
+        return {
+            orphacode: disease.ORPHAcode,
+            preferredTerm: disease["Preferred term"] || "-",
+        }
+    });
+    diseaseList = diseaseList.filter(disease => disease.orphacode !== undefined)
+
+    if (diseaseList.length === 0) {
+        return diseaseList;  // Return early if no diseases found
+    } else if (diseaseList.length > 500) { // If more than 50 results are found, search term is considered too wide and an error is returned
+        throw new Error('413:To many results, please refine your search');
+    } else {
+        // Fetch additional data for each disease
+        return Promise.allSettled([
+            removeInactive(diseaseList),
+            fetchSynonyms(diseaseList),
+            fetchICD10Codes(diseaseList),
+            fetchClassificationLevel(diseaseList)
+        ]).then((values) => {
+            let diseaseData = [];
+            values.forEach((value) => {
+                if (value.status === 'fulfilled') {
+                    diseaseData = [...diseaseData, ...value.value];
+                }
             });
+            return diseaseData;
         }).catch(error => {
-            if (error.message.includes('404')) {
-                return [];  // Return an empty array for 404 errors
-            }
             throw error;  // Re-throw other errors
         });
-
-    // Fetch synonyms using ApproximateName endpoint
-    const synonymSearchData = await fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/ApproximateName/${name}/Synonym`, { ...options })
-        .then((values) => {
-            return values.map(disease => {
-                return {
-                    orphacode: disease.ORPHAcode,
-                    preferredTerm: disease["Preferred term"] || "-",
-                };
-            })
-        }).catch(error => {
-            if (error.message.includes('404')) {
-                return [];  // Return an empty array for 404 errors
-            }
-            throw error;  // Re-throw other errors
-        });
-
-    // Merge synonym and name results
-    const diseaseData = [... new Set([...nameSearchData, ...synonymSearchData])];
-
-    if (diseaseData.length === 0) {
-        return diseaseData;  // Return early if no diseases found
     }
-
-    //Remove inactive diseases
-    const activeDiseaseData = await removeInactive(diseaseData);
-
-    // Fetch synonyms for each disease
-    let diseaseWithSynonyms = await fetchSynonyms(activeDiseaseData);
-
-    // Fetch ICD-10 codes for each disease
-    const diseaseWithICD10 = await fetchICD10Codes(diseaseWithSynonyms);
-
-    // Fetch classification level for each disease
-    const completeDiseaseData = await fetchClassificationLevel(diseaseWithICD10);
-
-    return completeDiseaseData;
 }

@@ -6,6 +6,7 @@ export async function GET(req, { params }) {
 
     try {
         const diseaseData = await fetchApproximateNameInfo(name);
+
         if (diseaseData.length === 0) {
             return new NextResponse(
                 JSON.stringify({ message: `No data found for name ${name}` }),
@@ -17,8 +18,14 @@ export async function GET(req, { params }) {
             { status: 200 }
         );
     } catch (error) {
+        if ( error.message.includes('413')) {
+            return new NextResponse(
+                JSON.stringify({ message: `To many results for "${name}", please refine your search` }),
+                { status: 413 }
+            );
+        }
         return new NextResponse(
-            'Something went wrong when getting the orphacodes, please try again later',
+            JSON.stringify({message:'Something went wrong when getting the orphacodes, please try again later'}),
             { status: 500 }
         );
     }
