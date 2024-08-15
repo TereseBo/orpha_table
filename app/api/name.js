@@ -28,6 +28,7 @@ export async function fetchApproximateNameInfo(name) {
         return [... new Set([...diseaseData])]
 
     }).catch(error => {
+
         if (error.message.includes('404')) {
 
             return [];  // Return an empty array for 404 errors
@@ -40,10 +41,10 @@ export async function fetchApproximateNameInfo(name) {
             preferredTerm: disease["Preferred term"] || "-",
         }
     });
-    diseaseList= diseaseList.filter(disease => disease.orphacode !== undefined)
+    diseaseList = diseaseList.filter(disease => disease.orphacode !== undefined)
 
     if (diseaseList.length === 0) {
-        return diseaseData;  // Return early if no diseases found
+        return diseaseList;  // Return early if no diseases found
     } else if (diseaseList.length > 500) { // If more than 50 results are found, search term is considered too wide and an error is returned
         throw new Error('413:To many results, please refine your search');
     } else {
