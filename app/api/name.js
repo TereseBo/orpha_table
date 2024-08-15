@@ -10,12 +10,12 @@ export async function fetchApproximateNameInfo(name) {
         },
     };
 
-    // Fetch data using ApproximateName endpoint
-
+    // Fetch orphacodes using ApproximateName and ApproximateSynonyms endpoint
     const diseaseList= await Promise.allSettled([
         fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/ApproximateName/${name}`, { ...options }),
         fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/ApproximateName/${name}/Synonym`, { ...options }),
     ]).then((values) => {
+        // Combine and return results from both endpoints
         let diseaseData = [];
         values.forEach((value) => {
             if (value.status === 'fulfilled') {
@@ -29,21 +29,19 @@ export async function fetchApproximateNameInfo(name) {
             return [... new Set([...diseaseData])]
 
         }).catch(error => {
-            console.log('This was the error error')
-            console.log(error)
             if (error.message.includes('404')) {
 
                 return [];  // Return an empty array for 404 errors
             }
             throw error;  // Re-throw other errors
         });
-        console.log(diseaseList)
 
         if (diseaseList.length === 0) {
             return diseaseData;  // Return early if no diseases found
-        }else if(diseaseList.length>50){
+        }else if(diseaseList.length>500){ // If more than 50 results are found, search term is considered too wide and an error is returned
             throw new Error('413:To many results, please refine your search');
         }else{
+            // Fetch additional data for each disease
             return Promise.allSettled([
                 removeInactive(diseaseList),
                 fetchSynonyms(diseaseList),
@@ -51,7 +49,6 @@ export async function fetchApproximateNameInfo(name) {
                 fetchClassificationLevel(diseaseList)
             ]).then((values) => {
                 let diseaseData = [];
-                console.log(values)
                 values.forEach((value) => {
                     if (value.status === 'fulfilled') {
                         diseaseData = [...diseaseData, ...value.value];
@@ -59,11 +56,6 @@ export async function fetchApproximateNameInfo(name) {
                 });
                 return diseaseData;
             }).catch(error => {
-                console.log('This was the error error')
-                console.log(error)
-                if (error.message.includes('404')) {
-                    return [];  // Return an empty array for 404 errors
-                }
                 throw error;  // Re-throw other errors
             }); 
         }
