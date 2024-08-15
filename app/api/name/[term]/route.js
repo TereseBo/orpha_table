@@ -6,7 +6,7 @@ export async function GET(req, { params }) {
 
     try {
         const diseaseData = await fetchApproximateNameInfo(name);
-        console.log(diseaseData)
+
         if (diseaseData.length === 0) {
             return new NextResponse(
                 JSON.stringify({ message: `No data found for name ${name}` }),

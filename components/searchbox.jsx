@@ -30,7 +30,7 @@ export function SearchBox() {
                 }
                 break
             case "icd10":
-                if (!searchTerm.match( /[A-Za-z][0-9]+\.[0-9]+/i)) {
+                if (!searchTerm.match(/[A-Za-z][0-9]+\.[0-9]+/i)) {
                     toast.error('ICD-10 code must be in the format A12.3')
                     return false
                 }
@@ -63,8 +63,6 @@ export function SearchBox() {
                 }
                 setSearchResultList(data)
             }).catch(error => {
-                console.log('This was the error error in searchbox')
-                console.log(error)
                 setSearchResultList([])
                 toast.error('Something went wrong, please try again later')
             })
