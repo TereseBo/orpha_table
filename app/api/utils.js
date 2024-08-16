@@ -34,16 +34,17 @@ export async function fetchICD10Codes(diseaseData) {
 
     return Promise.all(apiCalls).then((values) => {
 
-        const icd10Data =[]
-        values.map(value=>{
+        const icd10Data = []
+        values.map(value => {
 
-            icd10Data.push({orphacode:value.ORPHAcode, referencesICD10:Array.isArray(value.References) && value.References.length > 0
-                ? value.References.map(ref => ref["Code ICD10"])
-                : ['-']
+            icd10Data.push({
+                orphacode: value.ORPHAcode, referencesICD10: Array.isArray(value.References) && value.References.length > 0
+                    ? value.References.map(ref => ref["Code ICD10"])
+                    : ['-']
             })
         })
 
-        
+
         return icd10Data;
     });
 }
@@ -72,11 +73,11 @@ export async function fetchSynonyms(diseaseData) {
     });
 
     return Promise.all(apiCalls).then((values) => {
-        const synonymData =[]
-        values.map(value=>{
-            synonymData.push({orphacode:value.ORPHAcode, synonyms:Array.isArray(value.Synonym) && value.Synonym.length > 0 ? value.Synonym : ['-'] })
+        const synonymData = []
+        values.map(value => {
+            synonymData.push({ orphacode: value.ORPHAcode, synonyms: Array.isArray(value.Synonym) && value.Synonym.length > 0 ? value.Synonym : ['-'] })
         })
-        
+
         return synonymData;
     });
 }
@@ -102,11 +103,11 @@ export async function fetchClassificationLevel(diseaseData) {
     });
 
     return Promise.all(apiCalls).then((values) => {
-        const classificationData =[]
-        values.map(value=>{
-            classificationData.push({orphacode:value.ORPHAcode, classificationLevel:value.ClassificationLevel || '-' })
+        const classificationData = []
+        values.map(value => {
+            classificationData.push({ orphacode: value.ORPHAcode, classificationLevel: value.ClassificationLevel || '-' })
         })
-        
+
         return classificationData;
     });
 }
@@ -132,13 +133,11 @@ export async function fetchStatus(diseaseData) {
     });
 
     return Promise.all(apiCalls).then((values) => {
-        console.log('values in remove inactive')
-        console.log(values)
-        const statusData =[]
-        values.map(value=>{
-            statusData.push({orphacode:value.ORPHAcode, status:value.Status })
+        const statusData = []
+        values.map(value => {
+            statusData.push({ orphacode: value.ORPHAcode, status: value.Status })
         })
-      
+
         return statusData;
     });
 }

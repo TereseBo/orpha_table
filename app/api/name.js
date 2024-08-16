@@ -62,7 +62,7 @@ export async function fetchApproximateNameInfo(name) {
 
             //Populate disease list with additional data found
             values.forEach((value) => {
-                console.log(value)
+
                 if (value.status === 'fulfilled') {
                     diseaseList = diseaseList.map(disease => {
                         let additionalData = value.value.find((obj) => obj.orphacode === disease.orphacode)
@@ -77,9 +77,9 @@ export async function fetchApproximateNameInfo(name) {
 
             //Return data only for avtive codes
             return diseaseList.filter(disease => disease.status === 'Active');
-            
+
         }).catch(error => {
-            console.log(error)
+
             throw error;  // Re-throw other errors
         });
     }
