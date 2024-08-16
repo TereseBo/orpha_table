@@ -16,10 +16,16 @@ export async function GET(req, { params }) {
             JSON.stringify(diseaseData),
             { status: 200 }
         );
-    } catch (error) {
-        return new NextResponse(
-            'Something went wrong when getting the diseases, please try again later',
-            { status: 500 }
-        );
-    }
+    }  catch (error) {
+      if ( error.message.includes('413')) {
+          return new NextResponse(
+              JSON.stringify({ message: `To many results for ICD-10 "${icd10}", please choose another search method` }),
+              { status: 413 }
+          );
+      }
+      return new NextResponse(
+          JSON.stringify({message:'Something went wrong when getting the orphacodes, please try again later'}),
+          { status: 500 }
+      );
+  }
 }

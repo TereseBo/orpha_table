@@ -20,7 +20,7 @@ export async function GET(req, { params }) {
     } catch (error) {
         if ( error.message.includes('413')) {
             return new NextResponse(
-                JSON.stringify({ message: `To many results for "${name}", please refine your search` }),
+                JSON.stringify({ message: `To many results for "${name}", please refine your search by only including the most specific term` }),
                 { status: 413 }
             );
         }

@@ -1,4 +1,4 @@
-import { fetchJson, removeInactive, fetchClassificationLevel, fetchSynonyms, fetchICD10Codes } from "./utils.js";
+import { fetchJson, fetchStatus, fetchClassificationLevel, fetchSynonyms, fetchICD10Codes } from "./utils.js";
 
 //Fetches data from the Orphanet API using the ApproximateName and ApproximateName/Synonyms endpoint
 export async function fetchApproximateNameInfo(name) {
@@ -20,12 +20,11 @@ export async function fetchApproximateNameInfo(name) {
         values.forEach((value) => {
             if (value.status === 'fulfilled') {
 
-                const valueSet = [... new Set([...value.value])]
-                diseaseData = [...diseaseData, ...valueSet];
+                diseaseData = [...diseaseData, ...value.value];
             }
         });
 
-        return [... new Set([...diseaseData])]
+        return diseaseData
 
     }).catch(error => {
 
@@ -35,34 +34,52 @@ export async function fetchApproximateNameInfo(name) {
         }
         throw error;  // Re-throw other errors
     });
-    let diseaseList = diseaseRawList.map(disease => {
+
+    let diseaseList = diseaseRawList.map((disease, index) => {
+
         return {
             orphacode: disease.ORPHAcode,
             preferredTerm: disease["Preferred term"] || "-",
         }
+
     });
+    //Remove any responses missing orphacode
     diseaseList = diseaseList.filter(disease => disease.orphacode !== undefined)
 
     if (diseaseList.length === 0) {
         return diseaseList;  // Return early if no diseases found
     } else if (diseaseList.length > 500) { // If more than 50 results are found, search term is considered too wide and an error is returned
-        throw new Error('413:To many results, please refine your search');
+        throw new Error('413:To many results, please refine your search by only including the most');
     } else {
+        
         // Fetch additional data for each disease
         return Promise.allSettled([
-            removeInactive(diseaseList),
+            fetchStatus(diseaseList),
             fetchSynonyms(diseaseList),
             fetchICD10Codes(diseaseList),
             fetchClassificationLevel(diseaseList)
         ]).then((values) => {
-            let diseaseData = [];
+
+            //Populate disease list with additional data found
             values.forEach((value) => {
+
                 if (value.status === 'fulfilled') {
-                    diseaseData = [...diseaseData, ...value.value];
+                    diseaseList = diseaseList.map(disease => {
+                        let additionalData = value.value.find((obj) => obj.orphacode === disease.orphacode)
+                        if (additionalData !== undefined) {
+                            return { ...disease, ...additionalData }
+                        } else {
+                            return disease
+                        }
+                    })
                 }
             });
-            return diseaseData;
+
+            //Return data only for avtive codes
+            return diseaseList.filter(disease => disease.status === 'Active');
+
         }).catch(error => {
+
             throw error;  // Re-throw other errors
         });
     }
