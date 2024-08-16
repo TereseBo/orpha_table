@@ -17,6 +17,7 @@ export function SearchBox() {
     }
 
     function validateSearch() {
+        setSearchResultList([])
         if (searchTerm === "") {
             toast.error('Please enter a search term')
             return false
@@ -45,6 +46,7 @@ export function SearchBox() {
                 toast.error('Please select a search mode')
                 return false
         }
+        
         return true
     }
 
