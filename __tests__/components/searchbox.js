@@ -1,4 +1,4 @@
-//Contains tests of calculator page content
+//Contains tests of searchbox content
 import { render, screen } from '@testing-library/react'
 
 import { SearchBox} from 'components/searchbox.jsx'
@@ -25,8 +25,3 @@ describe('Renders form', () => {
     })
 })
 
-//Tests for interactions with form
-/* describe('content', () => {
-    
-    it('', () => {
-  */
