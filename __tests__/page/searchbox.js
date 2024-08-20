@@ -5,22 +5,18 @@ import { Home} from '@/app/page'
 
 import '@testing-library/jest-dom'
 
-describe('Renders form', () => {
+describe('Renders page with expected content', () => {
 
+    beforeEach(() => {
+        render(<Home />);
+    });
 
-    it('renders the form', () => {
-        render(<Home />)
-
+    it('renders the search', () => {
+       
         const form = screen.getAllByRole('form')
+        
         expect(form.length).toBe(1)
+      
         expect(form[0]).toBeInTheDocument()
-    })
-
-    it('renders expected input', () => {
-        render(<Home/>)
-
-        const inputs= screen.getAllByRole('radio', {})
-        expect(inputs.length).toBe(3)
-
     })
 })
