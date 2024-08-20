@@ -51,6 +51,7 @@ export function SearchBox() {
     }
 
     function getData() {
+
         if (!validateSearch()) {
             return
         }
@@ -69,9 +70,12 @@ export function SearchBox() {
                 toast.error('Something went wrong, please try again later')
             })
     }
+    function submitHandler(e) {
+        e.preventDefault();
+    }
 
     return (
-        <form className="bg-white rounded p-2" id="searchform" name="searchform">
+        <form className="bg-white rounded p-2" id="searchform" name="searchform" onSubmit={submitHandler}>
             <div className="flex flex-row" >
                 <div className="flex flex-col mx-8">
                     <label htmlFor="orphacode">ORPHAcode</label>
