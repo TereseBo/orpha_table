@@ -6,7 +6,7 @@ import { ResultsTable } from "@/components/result/resultstable"
 import { SelectionTable } from "@/components/selection/selectiontable"
 import { Toaster } from 'react-hot-toast'
 
-export default function Home() {
+export function Home() {
 
   return (
     <main className="flex min-h-screen flex-col items-center p-8 gap-4">
