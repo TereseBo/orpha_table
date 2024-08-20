@@ -71,7 +71,7 @@ export function SearchBox() {
     }
 
     return (
-        <div className="bg-white rounded p-2">
+        <form className="bg-white rounded p-2" id="searchform" name="searchform">
             <div className="flex flex-row" >
                 <div className="flex flex-col mx-8">
                     <label htmlFor="orphacode">ORPHAcode</label>
@@ -91,6 +91,6 @@ export function SearchBox() {
                 <Input onChange={handleSearchTermChange} className="mx-4 rounded" type="text" id="input" />
                 <button className="bg-sky-700 text-white rounded px-2" onClick={getData}>Search</button>
             </div>
-        </div>
+        </form>
     );
 }

@@ -1,0 +1,14 @@
+name: Run Jest tests
+
+on:
+  pull_request:
+    branches:
+      - master
+      
+jobs:
+  jestTest:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: npm i
+      - run: npm run test
