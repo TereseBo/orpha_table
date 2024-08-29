@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button"
 import {
-  ColumnDef,
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
@@ -74,7 +73,7 @@ export function DataTable({
           )}
         </TableBody>
       </Table>
-{/*       <div className="flex items-center justify-end space-x-2 py-4">
+      <div className="flex items-center justify-end space-x-2 py-4">
         <Button
           variant="outline"
           size="sm"
@@ -91,7 +90,7 @@ export function DataTable({
         >
           Next
         </Button>
-      </div> */}
+      </div>
     </div>
     
   )
