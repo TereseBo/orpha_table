@@ -23,11 +23,9 @@ export const columns = [
             const rowcontent = row.original
 
             return (
-                <div className="flex fler-row gap-2">
+                <div className="flex flex-row gap-2 items-center justify-end mr-4">
                     {rowcontent.orphacode}
-                    <div >
-                        <Clipboard className="-my-2 hover:bg-sky-700 rounded" onClick={() => navigator.clipboard.writeText(rowcontent.orphacode)} size={16} />
-                    </div>
+                    <Clipboard className="hover:bg-sky-700 rounded" onClick={() => navigator.clipboard.writeText(rowcontent.orphacode)} size={16} />
                 </div>
             )
         },
@@ -59,7 +57,7 @@ export const columns = [
             })
 
             return (
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2 justify-center items-center">
                     {ICD10Arr}
                 </div>
             )
@@ -112,7 +110,7 @@ export const columns = [
     {
         accessorKey: "classificationLevel",
         header: ({ column }) => {
-            
+
             return (
                 <Button
                     variant="ghost"
