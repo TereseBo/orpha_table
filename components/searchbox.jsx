@@ -17,7 +17,7 @@ export function SearchBox() {
     }
 
     function validateSearch() {
-        setSearchResultList([])
+        
         if (searchTerm === "") {
             toast.error('Please enter a search term')
             return false
@@ -51,7 +51,9 @@ export function SearchBox() {
     }
 
     function getData() {
+
         if (!validateSearch()) {
+            setSearchResultList([])
             return
         }
         fetch(`/api/${searchMode}/${searchTerm}`)
@@ -69,9 +71,12 @@ export function SearchBox() {
                 toast.error('Something went wrong, please try again later')
             })
     }
+    function submitHandler(e) {
+        e.preventDefault();
+    }
 
     return (
-        <div className="bg-white rounded p-2">
+        <form className="bg-white rounded p-2" id="searchbox" name="searchbox" data-testid="searchbox" onSubmit={submitHandler}>
             <div className="flex flex-row" >
                 <div className="flex flex-col mx-8">
                     <label htmlFor="orphacode">ORPHAcode</label>
@@ -88,9 +93,9 @@ export function SearchBox() {
             </div>
             <div className="flex flex-row my-2 content-center">
                 <label className="text-nowrap self-center" htmlFor="input">Search disease:</label>
-                <Input onChange={handleSearchTermChange} className="mx-4 rounded" type="text" id="input" />
-                <button className="bg-sky-700 text-white rounded px-2" onClick={getData}>Search</button>
+                <Input onChange={handleSearchTermChange} data-testid="searchtextinput" className="mx-4 rounded" type="text" id="input" />
+                <button className="bg-sky-700 text-white rounded px-2" onClick={getData} name="searchbutton" data-testid="searchbutton">Search</button>
             </div>
-        </div>
+        </form>
     );
 }
