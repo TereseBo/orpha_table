@@ -1,5 +1,5 @@
 "use client"
-import { CopyIcon } from "lucide-react"
+
 import { Clipboard } from "lucide-react"
 import { ActionButtons } from "./actionbuttons"
 
