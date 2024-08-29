@@ -1,12 +1,24 @@
 "use client"
-import { CopyIcon } from "lucide-react"
-import { Clipboard } from "lucide-react"
+
+import { Clipboard, ArrowUpDown } from "lucide-react"
 import { RemoveButton } from "./removebutton"
+import { Button } from "@/components/ui/button"
 
 export const columns = [
     {
         accessorKey: "orphacode",
-        header: "ORPHAcode",
+        header: ({ column }) => {
+            
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    ORPHAcode
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            )
+        },
         cell: ({ row }) => {
             const rowcontent = row.original
 
@@ -15,7 +27,6 @@ export const columns = [
                     {rowcontent.orphacode}
                     <div >
                         <Clipboard className="-my-2 hover:bg-sky-700 rounded" onClick={() => navigator.clipboard.writeText(rowcontent.orphacode)} size={16} />
-
                     </div>
                 </div>
             )
@@ -23,10 +34,20 @@ export const columns = [
     },
     {
         accessorKey: "referencesICD10",
-        header: "ICD-10",
+        header: ({ column }) => {
+
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    ICD-10
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            )
+        },
         cell: ({ row }) => {
             const rowcontent = row.original
-
             const ICD10Arr = rowcontent.referencesICD10.map((ICD10code, index) => {
 
                 return (
@@ -34,8 +55,8 @@ export const columns = [
                         {ICD10code}
                     </div>
                 )
-
             })
+
             return (
                 <div className="flex flex-col gap-2">
                     {ICD10Arr}
@@ -45,14 +66,24 @@ export const columns = [
     },
     {
         accessorKey: "preferredTerm",
-        header: "Prefered name",
+        header: ({ column }) => {
+
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Preferred name
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            )
+        },
         cell: ({ row }) => {
             const rowcontent = row.original
 
             return (
                 <div className="flex flex-col gap-2">
                     {rowcontent.preferredTerm}
-
                 </div>
             )
         },
@@ -62,7 +93,6 @@ export const columns = [
         header: "Synonyms",
         cell: ({ row }) => {
             const rowcontent = row.original
-
             const synonymArr = rowcontent.synonyms.map((synonym, index) => {
 
                 return (
@@ -70,8 +100,8 @@ export const columns = [
                         {synonym}
                     </div>
                 )
-
             })
+
             return (
                 <div className="flex flex-col gap-2">
                     {synonymArr}
@@ -81,7 +111,18 @@ export const columns = [
     },
     {
         accessorKey: "classificationLevel",
-        header: "Classification level",
+        header: ({ column }) => {
+
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Classification level
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            )
+        },
         cell: ({ row }) => {
             const rowcontent = row.original
 
@@ -98,7 +139,7 @@ export const columns = [
             const rowcontent = row.original
 
             return (
-              <RemoveButton disease={rowcontent}/>
+                <RemoveButton disease={rowcontent} />
             )
         },
     },

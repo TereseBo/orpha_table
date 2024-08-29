@@ -1,8 +1,10 @@
 "use client"
 
+import * as React from "react"
 import { Button } from "@/components/ui/button"
 import {
   flexRender,
+  getSortedRowModel,
   getCoreRowModel,
   getPaginationRowModel,
   useReactTable,
@@ -17,16 +19,22 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
-
 export function DataTable({
   columns,
   data,
 }) {
+
+  const [sorting, setSorting] = React.useState([])
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
+    state: {
+      sorting,
+    },
   })
 
   return (
@@ -41,9 +49,9 @@ export function DataTable({
                     {header.isPlaceholder
                       ? null
                       : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
                   </TableHead>
                 )
               })}
@@ -92,7 +100,6 @@ export function DataTable({
         </Button>
       </div>
     </div>
-    
   )
 }
 
