@@ -1,3 +1,5 @@
+/* This route expects an ICD-10 code and utilizes the function fetchICD10Info 
+to fetch all corresponding active ORPHAcodes populated with synonyms, classification level and name. */
 import { NextResponse } from 'next/server';
 import { fetchICD10Info } from '../../icd10';
 

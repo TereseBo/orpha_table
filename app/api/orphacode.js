@@ -1,6 +1,6 @@
 import { fetchJson } from "./utils";
 
-// fetches ICD-10, and all synonyms from RD-CODE API by code
+// fetches ICD-10, name, status, classification level and all synonyms from RD-CODE API by code
 export async function fetchOrphaInfo(code) {
     const options = {
         method: "GET",

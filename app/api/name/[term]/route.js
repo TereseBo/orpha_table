@@ -1,3 +1,6 @@
+/* This route expects a string and utilizes the function fetchApproximateNameInfo
+to fetch all ORPHAcodes with approximately matching name or synonym, populated with 
+synonyms, classification level, ICD-10, and name. */
 import { NextResponse } from 'next/server';
 import { fetchApproximateNameInfo } from '../../name';
 

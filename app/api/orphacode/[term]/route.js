@@ -1,3 +1,6 @@
+/* This route expects an ORPHAcode and utilizes the function fetchOrphaInfo
+to populate with synonyms, classification level, ICD-10, and name. Only active codes are returned. */
+
 import { NextResponse } from 'next/server';
 import { fetchOrphaInfo } from '../../orphacode';
 
