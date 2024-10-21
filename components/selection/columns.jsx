@@ -63,6 +63,38 @@ export const columns = [
         },
     },
     {
+        accessorKey: "referencesICD11",
+        header: ({ column }) => {
+
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    ICD-11
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            )
+        },
+        cell: ({ row }) => {
+            const rowcontent = row.original
+            const ICD10Arr = rowcontent.referencesICD10.map((ICD11code, index) => {
+
+                return (
+                    <div key={rowcontent.ORPHAcode + ICD11code + index}>
+                        {ICD11code}
+                    </div>
+                )
+            })
+
+            return (
+                <div className="flex flex-col gap-2 justify-center items-center">
+                    {ICD10Arr}
+                </div>
+            )
+        },
+    },
+    {
         accessorKey: "preferredTerm",
         header: ({ column }) => {
 
