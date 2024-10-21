@@ -17,7 +17,7 @@ export function SearchBox() {
     }
 
     function validateSearch() {
-        
+
         if (searchTerm === "") {
             toast.error('Please enter a search term')
             return false
@@ -36,6 +36,13 @@ export function SearchBox() {
                     return false
                 }
                 break
+            case "icd11":
+                //TODO: Check and improve regex
+                if (!searchTerm.match(/[0-9][A-Za-z]+\[0-9]\[0-9]/i)) {
+                    toast.error('ICD-11 code must be in the format 1A13')
+                    return false
+                }
+                break
             case "name":
                 if (searchTerm.length < 3) {
                     toast.error('Name must be at least 3 characters long')
@@ -46,7 +53,7 @@ export function SearchBox() {
                 toast.error('Please select a search mode')
                 return false
         }
-        
+
         return true
     }
 
@@ -85,6 +92,10 @@ export function SearchBox() {
                 <div className="flex flex-col mx-8">
                     <label htmlFor="icd10">ICD-10</label>
                     <input type="radio" name="options" value="icd10" id="icd10" checked={searchMode === "icd10"} onChange={handleSearchModeChange} />
+                </div>
+                <div className="flex flex-col mx-8">
+                    <label htmlFor="icd10">ICD-11</label>
+                    <input type="radio" name="options" value="icd11" id="icd11" checked={searchMode === "icd11"} onChange={handleSearchModeChange} />
                 </div>
                 <div className="flex flex-col mx-8">
                     <label htmlFor="name">name</label>
