@@ -78,7 +78,7 @@ export const columns = [
         },
         cell: ({ row }) => {
             const rowcontent = row.original
-            const ICD10Arr = rowcontent.referencesICD10.map((ICD11code, index) => {
+            const ICD11Arr = rowcontent.referencesICD10.map((ICD11code, index) => {
 
                 return (
                     <div key={rowcontent.ORPHAcode + ICD11code + index}>
@@ -89,7 +89,7 @@ export const columns = [
 
             return (
                 <div className="flex flex-col gap-2 justify-center items-center">
-                    {ICD10Arr}
+                    {ICD11Arr}
                 </div>
             )
         },
