@@ -34,6 +34,18 @@ export const schema = [
         wrap: true
     },
     {
+        column: 'ICD-11',
+        type: String,
+        value: disease => disease.referencesICD11.toString(),
+
+        //Cell styling
+        width: 10,
+        fontSize: 8,
+        height: 26,
+        alignVertical: 'center',
+        wrap: true
+    },
+    {
         column: 'Prefered name',
         type: String,
         value: disease => disease.preferredTerm,
