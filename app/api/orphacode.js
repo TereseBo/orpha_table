@@ -13,6 +13,7 @@ export async function fetchOrphaInfo(code) {
     return Promise.allSettled([
         fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/orphacode/${code}/Name`, { ...options }),
         fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/orphacode/${code}/ICD10`, { ...options }),
+        fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/orphacode/${code}/ICD11`, { ...options }),
         fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/orphacode/${code}/Synonym`, { ...options }),
         fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/orphacode/${code}/ClassificationLevel`, { ...options }),
         fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/orphacode/${code}/Status`, { ...options }),
@@ -21,14 +22,26 @@ export async function fetchOrphaInfo(code) {
 
         const disease = {};
         let reducedData = {};
+
         values.forEach((value) => {
+
+            if (value.value && value.value.References && Object.hasOwn(value.value.References, "Code ICD10")) {
+             value.value.ReferencesICD10 = {...value.value.References}
+            }else  if (value.value && value.value.References && Object.hasOwn(value.value.References, "Code ICD11")) {
+                value.value.ReferencesICD11 = {...value.value.References}
+               }
+
+               console.log(value)
             reducedData = Object.assign({}, reducedData, value.value);
+
         });
 
         if (reducedData.Status !== "Active") {
             throw new Error(`404: Resource not active`);
         } else {
-            disease.referencesICD10 = Array.isArray(reducedData.References) ? reducedData.References.map(item => item["Code ICD10"]) : ["-"];
+            console.log(reducedData)
+            disease.referencesICD10 = Array.isArray(reducedData.ReferencesICD10) ? reducedData.ReferencesICD10.map(item => item["Code ICD10"]) : ["-"];
+            disease.referencesICD11 = Array.isArray(reducedData.ReferencesICD11) ? reducedData.ReferencesICD11.map(item => item["Code ICD11"]) : ["-"];
             disease.orphacode = reducedData.ORPHAcode;
             disease.preferredTerm = reducedData["Preferred term"] || ["-"];
             disease.synonyms = reducedData.Synonym || ["-"];

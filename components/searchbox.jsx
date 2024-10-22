@@ -38,7 +38,7 @@ export function SearchBox() {
                 break
             case "icd11":
                 //TODO: Check and improve regex
-                if (!searchTerm.match(/[0-9][A-Za-z]+\[0-9]\[0-9]/i)) {
+                if (!searchTerm.match(/[A-Za-z][0-9]/i)) {
                     toast.error('ICD-11 code must be in the format 1A13')
                     return false
                 }
@@ -63,6 +63,7 @@ export function SearchBox() {
             setSearchResultList([])
             return
         }
+
         fetch(`/api/${searchMode}/${searchTerm}`)
             .then(response => response.json())
             .then(data => {
@@ -94,7 +95,7 @@ export function SearchBox() {
                     <input type="radio" name="options" value="icd10" id="icd10" checked={searchMode === "icd10"} onChange={handleSearchModeChange} />
                 </div>
                 <div className="flex flex-col mx-8">
-                    <label htmlFor="icd10">ICD-11</label>
+                    <label htmlFor="icd11">ICD-11</label>
                     <input type="radio" name="options" value="icd11" id="icd11" checked={searchMode === "icd11"} onChange={handleSearchModeChange} />
                 </div>
                 <div className="flex flex-col mx-8">
