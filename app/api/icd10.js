@@ -31,7 +31,7 @@ export async function fetchICD10Info(icd10) {
     if (diseaseList.length === 0) {
         return diseaseList;  // Return early if no diseases found
     } else if (diseaseList.length > 500) { // If more than 50 results are found, search term is considered too wide and an error is returned
-        throw new Error('413:To many results, please refine your search by only including the most');
+        throw new Error('413:To many results, please refine your search');
     } else {
         
         // Fetch additional data for each disease
