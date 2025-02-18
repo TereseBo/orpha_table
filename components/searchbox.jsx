@@ -17,7 +17,7 @@ export function SearchBox() {
     }
 
     function validateSearch() {
-        
+
         if (searchTerm === "") {
             toast.error('Please enter a search term')
             return false
@@ -31,8 +31,8 @@ export function SearchBox() {
                 }
                 break
             case "icd10":
-                if (!searchTerm.match(/[A-Za-z][0-9]+\.[0-9]+/i)) {
-                    toast.error('ICD-10 code must be in the format A12.3')
+                if (!searchTerm.match(/^[A-Za-z]\d\d\.\d$/i) && !searchTerm.match( /^[A-Za-z]\d\d$/i)) {
+                    toast.error('ICD-10 code must be in the format Q42.2 or C20')
                     return false
                 }
                 break
@@ -46,7 +46,7 @@ export function SearchBox() {
                 toast.error('Please select a search mode')
                 return false
         }
-        
+
         return true
     }
 
