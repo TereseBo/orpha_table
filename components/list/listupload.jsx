@@ -2,6 +2,7 @@ import { useState } from "react"
 import readXlsxFile from 'read-excel-file'
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Checkbox } from "@/components/ui/checkbox"
 import useStore from '@/zustandstore/orphastore'
 import toast from 'react-hot-toast';
 
@@ -13,8 +14,10 @@ export function ListUpload() {
     const [searchMode, setSearchMode] = useState("icd10")
     const [file, setFile] = useState(null)
     const [column, setColumn] = useState(null)
+    const [headerRow, setHeaderRow] = useState(true)
 
     const setSearchResultList = useStore((state) => state.setSearchResultList)
+    const setListHeader = useStore((state) => state.setListHeader)
 
     function handleSearchModeChange(e) {
         setSearchMode(e.target.value)
@@ -39,9 +42,10 @@ export function ListUpload() {
 
 
     async function getData() {
+        setSearchResultList([])
+        setListHeader([])
 
         if (!validateInput()) {
-            setSearchResultList([]);
             return;
         }
 
@@ -51,7 +55,7 @@ export function ListUpload() {
             let inputData = await readXlsxFile(file); // Wait for read of file
 
             // Create body containing file and input data
-            body = { values: [...inputData], searchMode: searchMode, column: column };
+            body = { values: [...inputData], searchMode: searchMode, column: column, headerRow: headerRow };
         } catch (error) {
             toast.error("File could not be read. Please make sure it is in xlsx format and contains one code per cell");
             return; // End if file could not be read
@@ -70,6 +74,10 @@ export function ListUpload() {
             const data = await response.json();
             if (response.status === 200) {
                 toast.success("Success!");
+                if (headerRow) {
+                    const header = data.shift()
+                    setListHeader(header)
+                }
                 setSearchResultList(data)
             }
 
@@ -97,8 +105,18 @@ export function ListUpload() {
                 </div>
             </div>
             <div className="flex flex-row my-2 content-center">
-                <Label className="text-nowrap self-center" htmlFor="columninput" >Column with code:</Label>
-                <Input className="mx-4 rounded w-24" id="columninput" data-testid="columninput" type="text" onChange={handleColumnChange} />
+                <div className="flex flex-row my-2 content-center">
+                    <Label className="text-nowrap self-center" htmlFor="columninput" >Column with code:</Label>
+                    <Input className="mx-4 rounded w-24" id="columninput" data-testid="columninput" type="text" onChange={handleColumnChange} />
+                </div>
+
+                <div className="flex items-center space-x-2">
+                    <Label className="text-nowrap self-center" htmlFor="headerinput" >Does file have a header-row?</Label>
+                    <Checkbox id="headerinput"
+                        onCheckedChange={(prevValue) => setHeaderRow(!prevValue)} />
+                    <Label className="text-nowrap self-center" htmlFor="yes">Yes</Label>
+                </div>
+
             </div>
             <div className="flex flex-row my-2 content-center">
                 <Label className="text-nowrap self-center" htmlFor="fileinput" >Upload file: </Label>

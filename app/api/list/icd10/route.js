@@ -8,7 +8,7 @@ export async function POST(req, { params }) {
 
         let indata = body.values
         let codecolumn = body.column - 1
-
+        let headerRow = body.headerRow
         let inDataArray = Array.from([...indata])
 
         const diseaseData = await fetchICD10InfoWithOrphaCodes(inDataArray, codecolumn);

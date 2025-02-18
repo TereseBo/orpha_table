@@ -14,7 +14,6 @@ async function fetchOrphaForIcd10(icd10, index) {
             apikey: process.env.ORPHA_API_KEY,
         },
     };
-    console.log("In helper, will build diseaselist")
 
     let diseaseList = await fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/ICD10/${icd10}`, { ...options })
         .then((values) => {
@@ -44,7 +43,7 @@ async function fetchOrphaForIcd10(icd10, index) {
                     originalIndex: index // Save the original index for later sorting
                 }];
             } else {
-                console.log("error fetching data by ICD-10")
+
                 return [{
                     orphacode: "Error fetching data",
                     preferredTerm: "-",
@@ -58,9 +57,9 @@ async function fetchOrphaForIcd10(icd10, index) {
     if (diseaseList.length === 0) {
         return [];  // If no results, return an empty array
     }
-    console.log(diseaseList)
+
     return [...diseaseList]
-    
+
     // Fetch additional data for each disease (status, synonyms, classification)
     /*     try {
             const additionalData = await Promise.allSettled([
@@ -92,12 +91,22 @@ async function fetchOrphaForIcd10(icd10, index) {
 }
 
 // Fetches ORPHAcodes from RD-CODE API by ICD-10code and then remaining information
-export async function fetchICD10InfoWithOrphaCodes(icd10Array, icd10Index) {
+export async function fetchICD10InfoWithOrphaCodes(icd10Array, icd10Index, headerRow) {
+
+    let header = null
+
+    if (headerRow) {
+        header = [...icd10Array[0]]
+    } else {
+        header = new Array(icd10Array[0].length).fill("-", 0)
+    }
+    header.concat(["orphacode", "preferreTerm", "referencesICD10", "originalIndex"])
 
     try {
         // Fetch Orpha codes for all ICD-10 codes in file data
         const results = await Promise.allSettled(
             icd10Array.map((row, index) => {
+
                 return fetchOrphaForIcd10(row[icd10Index], index)
             })
         );
@@ -124,6 +133,9 @@ export async function fetchICD10InfoWithOrphaCodes(icd10Array, icd10Index) {
 
         // Sort the results to ensure the original order is maintained
         finalResults.sort((a, b) => a.originalIndex - b.originalIndex);
+        if (headerRow) {
+            finalResults.unshift(header)
+        }
 
         return finalResults;
 

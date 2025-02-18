@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 
 const useStore = create((set, get) => ({
+ 
   searchResultList: [],
   selectedDiseaseList: [],
   setSearchResultList: (list) => set({ searchResultList: list }),
@@ -24,6 +25,8 @@ const useStore = create((set, get) => ({
     // Remove from searchResultList
     set({ searchResultList: searchResultList.filter(item => item.orphacode !== disease.orphacode) });
   },
+  listHeader:[],
+  setListHeader:(header)=>set({listHeader:header}),
 }));
 
 export default useStore;
