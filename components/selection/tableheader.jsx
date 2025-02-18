@@ -67,7 +67,7 @@ export function Tableheader() {
             <h1>Selected Diseases</h1>
             <div className="rounded-md border-x border-t px-2 pt-2 pb-4 -mb-2">
                 <div className="flex flex-rowcontent-center my-2">
-                    <label className="text-nowrap self-center" htmlFor="input">Table header:</label>
+                    <label className="text-nowrap self-center" htmlFor="input">File name:</label>
                     <Input onChange={handleHeaderChange} className="mx-4 rounded" type="text" id="input" />
 
                 </div>
