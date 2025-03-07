@@ -91,16 +91,27 @@ async function fetchOrphaForIcd10(icd10, index) {
 }
 
 // Fetches ORPHAcodes from RD-CODE API by ICD-10code and then remaining information
-export async function fetchICD10InfoWithOrphaCodes(icd10Array, icd10Index, headerRow) {
+export async function fetchICD10InfoWithOrphaCodes(icd10Array, icd10Index, headerRow = false) {
 
     let header = null
 
+    //Create a header row, retaining the values from the in-data if present
     if (headerRow) {
-        header = [...icd10Array[0]]
+         header = icd10Array.shift()
     } else {
-        header = new Array(icd10Array[0].length).fill("-", 0)
+        header = new Array(icd10Array[0].length).fill("column", 0)
+        header = header.map((item, index) => {
+            return `${item} ${index}`
+        })
     }
-    header.concat(["orphacode", "preferreTerm", "referencesICD10", "originalIndex"])
+    let newHeader = {
+        ...header, // Copy the complete original row
+        icd10original: "icd10original",
+        orphacode: "orphacode",
+        preferredTerm: "preferredTerm",
+        referencesICD10: "referencesICD10",
+        originalIndex: "originalIndex"
+    }
 
     try {
         // Fetch Orpha codes for all ICD-10 codes in file data
@@ -133,8 +144,12 @@ export async function fetchICD10InfoWithOrphaCodes(icd10Array, icd10Index, heade
 
         // Sort the results to ensure the original order is maintained
         finalResults.sort((a, b) => a.originalIndex - b.originalIndex);
-        if (headerRow) {
-            finalResults.unshift(header)
+
+        //Add/replace data corresponding to the headerrow 
+        if (!headerRow) {
+            finalResults.unshift({...newHeader})
+        } else {
+            finalResults[0] = {...newHeader}
         }
 
         return finalResults;
