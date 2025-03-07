@@ -1,7 +1,7 @@
 import { Input } from "@/components/ui/input"
 import useStore from '@/zustandstore/orphastore'
 import writeXlsxFile from 'write-excel-file'
-import { headerStyle, schema } from "./excelschema/schema"
+import { headerStyle} from "./excelschema/schema"
 import { useState } from "react"
 import { getDateString } from "@/utils/getDateString"
 import toast from 'react-hot-toast';
@@ -22,37 +22,22 @@ export function ListTableheader() {
         setHeading(e.target.value)
     }
 
+    //TODO: Fix excel formatting
+    //This function uses write-excel-file to print the diseaselist with mappings to excel
     async function printDataExcel() {
 
         if (!validateDownload()) return
 
         try {
-            let listSchema =listHeader.map((item=>{
-                return(
-                    {
-                        column: item,
-                        type: String,
-                        value: disease => disease[item],
-                
-                        //Cell styling
-                        width: 10,
-                        fontSize: 12,
-                        alignVertical: 'center',
-                        align: 'center',
-                
-                    }
-                )
-            }))
+            let exelList = createFileData()
 
-            console.log(diseaseList)
-
-                await writeXlsxFile(diseaseList.map(row=>{return[...row]}), {
-                    listSchema,
-                    headerStyle,
-                    fileName: heading === "" ? 'orphalist_mapping' + getDateString() + '.xlsx' : heading + '_' + getDateString() + '.xlsx',
-                    stickyRowsCount: 1,
-                    sheet: heading === "" ? 'mappedList' : heading + ''
-                })
+            await writeXlsxFile(exelList, {
+                // listSchema,
+                headerStyle,
+                fileName: heading === "" ? 'orphalist_mapping' + getDateString() + '.xlsx' : heading + '_' + getDateString() + '.xlsx',
+                //stickyRowsCount: 1,
+                sheet: heading === "" ? 'mappedList' : heading + ''
+            })
 
             toast.success('Excel file created')
 
@@ -62,6 +47,43 @@ export function ListTableheader() {
         }
     }
 
+    function createFileData() {
+        let excelData = []
+
+        //Restructure disease data to the format expected by write-excel-file
+        diseaseList.forEach(item => {
+
+            let excelRow = []
+            for (const [key, value] of Object.entries(item)) {
+    
+                if (Number(key) !== NaN) {
+                    excelRow[Number(key)] = { value: value }
+                }
+            }
+            excelRow = [...excelRow, { value: item.orphacode }, { value: item.preferredTerm }, { value: item.referencesICD10.toString() }]
+            excelData[Number(item.originalIndex)] = [...excelRow]
+        })
+
+        //Restructure disease data to the format expected by write-excel-file
+        let excelHeader = []
+        for (const [key, value] of Object.entries(listHeader)) {
+       
+            if (Number(key) !== NaN) {
+                excelHeader[Number(key)] = { value: value }
+            }
+        }
+
+        excelHeader = [...excelHeader, { value: listHeader.orphacode }, { value: listHeader.preferredTerm }, { value: listHeader.referencesICD10.toString() }]
+
+        //Add header so it writes to first row
+        excelData.unshift([...excelHeader])
+        
+        //Return disease data, including header in format expected by write-excel-file
+        return excelData
+
+    }
+
+    //TODO: Update this function
     async function printDataJSON() {
 
         if (!validateDownload()) return
