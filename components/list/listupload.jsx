@@ -2,8 +2,8 @@ import { useState } from "react"
 import readXlsxFile from 'read-excel-file'
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
 import useStore from '@/zustandstore/orphastore'
+import { Switch } from "@/components/ui/switch"
 import toast from 'react-hot-toast';
 
 
@@ -14,10 +14,15 @@ export function ListUpload() {
     const [searchMode, setSearchMode] = useState("icd10")
     const [file, setFile] = useState(null)
     const [column, setColumn] = useState(null)
-    const [headerRow, setHeaderRow] = useState(true)
+    const [fileHasHeader, setFileHasHeader] = useState(false);
 
     const setSearchResultList = useStore((state) => state.setSearchResultList)
     const setListHeader = useStore((state) => state.setListHeader)
+
+    const handleHeaderChange = (checked) => {
+        setFileHasHeader(checked);
+      };
+    
 
     function handleSearchModeChange(e) {
         setSearchMode(e.target.value)
@@ -111,10 +116,12 @@ export function ListUpload() {
                 </div>
 
                 <div className="flex items-center space-x-2">
-                    <Label className="text-nowrap self-center" htmlFor="headerinput" >Does file have a header-row?</Label>
-                    <Checkbox id="headerinput"
-                        onCheckedChange={(prevValue) => setHeaderRow(!prevValue)} />
-                    <Label className="text-nowrap self-center" htmlFor="yes">Yes</Label>
+                    
+                    <Label className="text-nowrap self-center" htmlFor="headerinput">Does file have a header-row?</Label>
+                    <Switch id="headerinput" 
+                      checked={fileHasHeader} // Bind the state to the Switch component
+                      onCheckedChange={handleHeaderChange} // Handle toggle events
+                    />
                 </div>
 
             </div>
