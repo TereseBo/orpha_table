@@ -4,6 +4,7 @@ import { ListUpload} from '@/components/list/listupload'
 import React from 'react'
 import {ListResultTable} from "@/components/list/listresulttable"
 import { Toaster } from 'react-hot-toast'
+import {Nav} from "@/components/nav"
 
 export default function ListPage() {
 
@@ -12,6 +13,7 @@ export default function ListPage() {
 
   return (
     <main className="flex min-h-screen flex-col items-center p-8 gap-4">
+      <Nav className="absolute top-4 right-4 " href="/" label="Search by code"/>
       <Toaster />
       <ListUpload />
       <ListResultTable />
