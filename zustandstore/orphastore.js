@@ -25,7 +25,9 @@ const useStore = create((set, get) => ({
     // Remove from searchResultList
     set({ searchResultList: searchResultList.filter(item => item.orphacode !== disease.orphacode) });
   },
+  listResultList: [],
   listHeader:[],
+  setListResultList: (list) => set({ listResultList: list }),
   setListHeader:(header)=>set({listHeader:header}),
 }));
 

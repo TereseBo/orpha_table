@@ -7,7 +7,7 @@ import useStore from '@/zustandstore/orphastore';
 
 export function ListResultTable() {
 
-    const searchResultList = useStore((state) => state.searchResultList);
+    const listResultList = useStore((state) => state.listResultList);
    
     
     
@@ -15,7 +15,7 @@ export function ListResultTable() {
         <div className="m-2 w-5/6">
             <h1>Search results</h1>
             <ListTableheader/>
-            <DataTable columns={columns} data={searchResultList} />
+            <DataTable columns={columns} data={listResultList} />
         </div>
     )
 }

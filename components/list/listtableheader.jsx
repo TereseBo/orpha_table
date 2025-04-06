@@ -3,10 +3,11 @@ import useStore from '@/zustandstore/orphastore'
 import writeXlsxFile from 'write-excel-file'
 import { useState } from "react"
 import { getDateString } from "@/utils/getDateString"
+import {headerStyle} from "@/components/selection/excelschema/schema"
 import toast from 'react-hot-toast';
 
 export function ListTableheader() {
-    const diseaseList = useStore((state) => state.searchResultList);
+    const diseaseList = useStore((state) => state.listResultList);
     const listHeader = useStore((state) => state.listHeader);
     const [heading, setHeading] = useState("")
 

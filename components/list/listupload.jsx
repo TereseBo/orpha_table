@@ -16,7 +16,7 @@ export function ListUpload() {
     const [column, setColumn] = useState(null)
     const [fileHasHeader, setFileHasHeader] = useState(false);
 
-    const setSearchResultList = useStore((state) => state.setSearchResultList)
+    const setListResultList = useStore((state) => state.setListResultList)
     const setListHeader = useStore((state) => state.setListHeader)
 
     const handleHeaderChange = (checked) => {
@@ -47,7 +47,8 @@ export function ListUpload() {
 
 
     async function getData() {
-        setSearchResultList([])
+
+        setListResultList([])
         setListHeader([])
 
         if (!validateInput()) {
@@ -60,7 +61,7 @@ export function ListUpload() {
             let inputData = await readXlsxFile(file); // Wait for read of file
 
             // Create body containing file and input data
-            body = { values: [...inputData], searchMode: searchMode, column: column, headerRow: headerRow };
+            body = { values: [...inputData], searchMode: searchMode, column: column, headerRow: fileHasHeader };
         } catch (error) {
             toast.error("File could not be read. Please make sure it is in xlsx format and contains one code per cell");
             return; // End if file could not be read
@@ -79,11 +80,11 @@ export function ListUpload() {
             const data = await response.json();
             if (response.status === 200) {
                 toast.success("Success!");
-                if (headerRow) {
-                    const header = data.shift()
-                    setListHeader(header)
-                }
-                setSearchResultList(data)
+                //Data from backend always contain a header row
+                const header = data.shift()
+                setListHeader(header)
+
+                setListResultList(data)
             }
 
             if (data.message) {
@@ -92,7 +93,7 @@ export function ListUpload() {
             }
 
         } catch (error) {
-            setSearchResultList([]);
+                   setListResultList([]);
             toast.error('Something went wrong, please try again later');
         }
     }
@@ -116,11 +117,11 @@ export function ListUpload() {
                 </div>
 
                 <div className="flex items-center space-x-2">
-                    
+
                     <Label className="text-nowrap self-center" htmlFor="headerinput">Does file have a header-row?</Label>
-                    <Switch id="headerinput" 
-                      checked={fileHasHeader} // Bind the state to the Switch component
-                      onCheckedChange={handleHeaderChange} // Handle toggle events
+                    <Switch id="headerinput"
+                        checked={fileHasHeader} // Bind the state to the Switch component
+                        onCheckedChange={handleHeaderChange} // Handle toggle events
                     />
                 </div>
 
