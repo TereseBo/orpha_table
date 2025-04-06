@@ -34,6 +34,7 @@ export function ListUpload() {
 
     function handleFileChange(e) {
         setFile(e.target.files[0])
+        setListResultList([])
     }
 
     function validateInput() {

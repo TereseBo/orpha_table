@@ -13,7 +13,6 @@ export function ListResultTable() {
     
     return (
         <div className="m-2 w-5/6">
-            <h1>Search results</h1>
             <ListTableheader/>
             <DataTable columns={columns} data={listResultList} />
         </div>
