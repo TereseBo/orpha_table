@@ -29,6 +29,9 @@ const useStore = create((set, get) => ({
   listHeader:[],
   setListResultList: (list) => set({ listResultList: list }),
   setListHeader:(header)=>set({listHeader:header}),
+  removeItemFromListResultList: (item) => set((state) => ({
+    listResultList: state.listResultList.filter(disease => JSON.stringify(disease) !== JSON.stringify(item)),
+  })),
 }));
 
 export default useStore;

@@ -2,6 +2,7 @@
 
 import { Clipboard, ArrowUpDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { ActionButtons } from "./actionbuttons"
 
 export const columns = [
     {
@@ -53,6 +54,29 @@ export const columns = [
                 </div>
             )
         },
+    },    {
+        accessorKey: "preferredTerm",
+        header: ({ column }) => {
+
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Preferred name
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            )
+        },
+        cell: ({ row }) => {
+            const rowcontent = row.original
+
+            return (
+                <div className="flex flex-col gap-2">
+                    {rowcontent.preferredTerm}
+                </div>
+            )
+        },
     },
     {
         accessorKey: "referencesICD10",
@@ -63,7 +87,7 @@ export const columns = [
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
-                    ICD-10
+                    ICD-10 reference mapping
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             )
@@ -88,26 +112,13 @@ export const columns = [
         },
     },
     {
-        accessorKey: "preferredTerm",
-        header: ({ column }) => {
-
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                >
-                    Preferred name
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            )
-        },
+        accessorKey: "Remove",
+        id: "actions",
         cell: ({ row }) => {
             const rowcontent = row.original
 
             return (
-                <div className="flex flex-col gap-2">
-                    {rowcontent.preferredTerm}
-                </div>
+                <ActionButtons disease={{ ...rowcontent }} />
             )
         },
     },
