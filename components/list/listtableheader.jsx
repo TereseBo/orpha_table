@@ -29,9 +29,9 @@ export function ListTableheader() {
         if (!validateDownload()) return
 
         try {
-            let exelList = createFileData()
+            let excelList = createFileData()
 
-            await writeXlsxFile(exelList, {
+            await writeXlsxFile(excelList, {
                 // listSchema,
                 headerStyle,
                 fileName: heading === "" ? 'orphalist_mapping' + getDateString() + '.xlsx' : heading + '_' + getDateString() + '.xlsx',
@@ -56,26 +56,29 @@ export function ListTableheader() {
             let excelRow = []
             for (const [key, value] of Object.entries(item)) {
     
-                if (Number(key) !== NaN) {
+                if (!isNaN(key)) {
                     excelRow[Number(key)] = { value: value }
                 }
             }
-            excelRow = [...excelRow, { value: item.orphacode }, { value: item.preferredTerm }, { value: item.referencesICD10.toString() }]
-            excelData[Number(item.originalIndex)] = [...excelRow]
+            excelRow = [...excelRow, { value: item.orphacode }, { value: item.preferredTerm }, { value: item.referencesICD10.toString()}, item.originalIndex ]
+            excelData.push([...excelRow])
         })
 
-        //Restructure disease data to the format expected by write-excel-file
+        //Sort data by original index to ensure order in output file matches order in input file
+        excelData.sort((a, b) => a[-1] - b[-1] )
+
+        //Create data for header row of excel
         let excelHeader = []
         for (const [key, value] of Object.entries(listHeader)) {
        
-            if (Number(key) !== NaN) {
+            if (!isNaN(key)) {
                 excelHeader[Number(key)] = { value: value }
             }
         }
 
         excelHeader = [...excelHeader, { value: listHeader.orphacode }, { value: listHeader.preferredTerm }, { value: listHeader.referencesICD10.toString() }]
 
-        //Add header so it writes to first row
+        //Add header first in data
         excelData.unshift([...excelHeader])
         
         //Return disease data, including header in format expected by write-excel-file
