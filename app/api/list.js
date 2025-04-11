@@ -1,4 +1,4 @@
-import { fetchJson, fetchStatus } from "./utils.js";
+import { fetchJson, fetchStatus, fetchClassificationLevel, fetchSynonyms } from "./utils.js";
 
 // Helper function to fetch ORPHA codes for a single ICD-10 code
 async function fetchOrphaForIcd10(icd10, index) {
@@ -57,36 +57,34 @@ async function fetchOrphaForIcd10(icd10, index) {
         return [];  // If no results, return an empty array
     }
 
-    return [...diseaseList]
+    // Fetch additional data for each disease (status, classification level)
+    try {
+        const additionalData = await Promise.allSettled([
+            fetchStatus(diseaseList),
+            fetchClassificationLevel(diseaseList)
+        ]);
 
-    // Fetch additional data for each disease (status, synonyms, classification)
-    /*     try {
-            const additionalData = await Promise.allSettled([
-                fetchStatus(diseaseList),
-                // fetchSynonyms(diseaseList),
-                // fetchClassificationLevel(diseaseList)
-            ]);
-    
-            // Populate disease list with additional data found
-            additionalData.forEach((value) => {
-                if (value.status === 'fulfilled') {
-                    diseaseList = diseaseList.map(disease => {
-                        let additional = value.value.find((obj) => obj.orphacode === disease.orphacode);
-                        if (additional !== undefined) {
-                            return { ...disease, ...additional };
-                        }
-                        return disease;
-                    });
-                }
-            });
-    
-            // Return only active diseases
-            return diseaseList.filter(disease => disease.status === 'Active');
-    
-        } catch (error) {
-            console.log("error fetching status data for collected orphacodes")
-            throw error;  // Re-throw errors from additional data fetch
-        } */
+        // Populate disease list with additional data found
+        additionalData.forEach((value) => {
+            if (value.status === 'fulfilled') {
+                diseaseList = diseaseList.map(disease => {
+                    let additional = value.value.find((obj) => obj.orphacode === disease.orphacode);
+                    if (additional !== undefined) {
+                        return { ...disease, ...additional };
+                    }
+                    return disease;
+                });
+            }
+        });
+
+        // Return only active diseases
+        return diseaseList.filter(disease => disease.status === 'Active');
+
+    } catch (error) {
+        console.log("error fetching status data for collected orphacodes")
+        throw error;  // Re-throw errors from additional data fetch
+    }
+
 }
 
 // Fetches ORPHAcodes from RD-CODE API by ICD-10code and then remaining information
@@ -108,6 +106,7 @@ export async function fetchICD10InfoWithOrphaCodes(icd10Array, icd10Index, heade
         icd10original: "icd10original",
         orphacode: "orphacode",
         preferredTerm: "preferredTerm",
+        classificationLevel: "Classification level",
         referencesICD10: "referencesICD10",
         originalIndex: "originalIndex"
     }
@@ -132,13 +131,11 @@ export async function fetchICD10InfoWithOrphaCodes(icd10Array, icd10Index, heade
                     icd10original: icd10Array[index][icd10Index],//name original icd-10 for which search was performed 
                     orphacode: disease.orphacode,
                     preferredTerm: disease.preferredTerm,
+                    classificationLevel: disease.classificationLevel,
                     referencesICD10: disease.referencesICD10,
                     originalIndex: disease.originalIndex
                 });
             });
-            // } else {
-            //   console.error(`Error fetching data for ICD-10 code ${icd10Array[index]}: ${result.reason}`);
-            // }
         });
 
         // Sort the results to ensure the original order is maintained
