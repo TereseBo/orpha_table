@@ -11,7 +11,7 @@ export async function POST(req, { params }) {
         let headerRow = body.headerRow
         let inDataArray = Array.from([...indata])
 
-        const diseaseData = await fetchICD10InfoWithOrphaCodes(inDataArray, codecolumn);
+        const diseaseData = await fetchICD10InfoWithOrphaCodes(inDataArray, codecolumn, headerRow);
 
         if (diseaseData.length === 0) {
             return new NextResponse(

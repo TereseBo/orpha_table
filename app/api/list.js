@@ -4,7 +4,6 @@ import { fetchJson, fetchStatus } from "./utils.js";
 async function fetchOrphaForIcd10(icd10, index) {
 
     //TODO: Populate collected data with level and status and filter inactive
-    //TODO: Allow for separate use and handeling of header row in data
     //TODO: Handle errors in list fetching, allowing for return of incomplete results
 
     const options = {
@@ -97,7 +96,7 @@ export async function fetchICD10InfoWithOrphaCodes(icd10Array, icd10Index, heade
 
     //Create a header row, retaining the values from the in-data if present
     if (headerRow) {
-         header = icd10Array.shift()
+        header = icd10Array.shift()
     } else {
         header = new Array(icd10Array[0].length).fill("column", 0)
         header = header.map((item, index) => {
@@ -145,12 +144,8 @@ export async function fetchICD10InfoWithOrphaCodes(icd10Array, icd10Index, heade
         // Sort the results to ensure the original order is maintained
         finalResults.sort((a, b) => a.originalIndex - b.originalIndex);
 
-        //Add/replace data corresponding to the headerrow 
-        if (!headerRow) {
-            finalResults.unshift({...newHeader})
-        } else {
-            finalResults[0] = {...newHeader}
-        }
+        //Add data corresponding to the headerrow 
+        finalResults.unshift({ ...newHeader })
 
         return finalResults;
 
