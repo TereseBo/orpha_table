@@ -21,8 +21,8 @@ export function ListUpload() {
 
     const handleHeaderChange = (checked) => {
         setFileHasHeader(checked);
-      };
-    
+    };
+
 
     function handleSearchModeChange(e) {
         setSearchMode(e.target.value)
@@ -40,11 +40,39 @@ export function ListUpload() {
 
     function validateInput() {
 
-        if (file === null || column === null) {
-            toast.error('Please add a file and enter the column where code data to map is found')
+        if (file === null) {
+            toast.error('Please add a file to map')
             return false
         }
+        if (column === null) {
+            toast.error('Please add the column where code data to map is found')
+            return false
+        }
+
+        switch (true) {
+            case column < 1:
+            case !new RegExp("^[a-zA-Z0-9]*$").test(column):
+                toast.error('Your column input has an error, allowed values are 1-26 and A-Z')
+                return false
+            case column > 26:
+            case isNaN(column) && column.length > 1:
+                toast.error('Your file contains to many columns, allowed values are 1-26 and A-Z')
+                return false
+            case isNaN(column):
+
+                if (column.toLowerCase().charCodeAt(0) - 96 < 1 || column.toLowerCase().charCodeAt(0) - 96 > 26) {
+                    toast.error('Your file contains to many columns, allowed values are 1-26 and A-Z')
+                    return false
+                }
+        }
+
         return true
+    }
+
+    function convertColumn(columnValue) {
+
+        return isNaN(column) ? (columnValue.toLowerCase().charCodeAt(0) - 96).toString() : columnValue
+
     }
 
 
@@ -63,7 +91,7 @@ export function ListUpload() {
             let inputData = await readXlsxFile(file); // Wait for read of file
 
             // Create body containing file and input data
-            body = { values: [...inputData], searchMode: searchMode, column: column, headerRow: fileHasHeader };
+            body = { values: [...inputData], searchMode: searchMode, column: convertColumn(column), headerRow: fileHasHeader };
         } catch (error) {
             toast.error("File could not be read. Please make sure it is in xlsx format and contains one code per cell");
             return; // End if file could not be read
@@ -95,7 +123,7 @@ export function ListUpload() {
             }
 
         } catch (error) {
-                   setListResultList([]);
+            setListResultList([]);
             toast.error('Something went wrong, please try again later');
         }
     }
