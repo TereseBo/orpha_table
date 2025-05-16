@@ -12,11 +12,11 @@ export async function POST(req, { params }) {
         let inDataArray = Array.from([...indata])
 
         const diseaseData = await fetchICD10InfoWithOrphaCodes(inDataArray, codecolumn, headerRow);
-
-        if (diseaseData.length === 0) {
+ 
+        if (diseaseData.length === 1) {
             return new NextResponse(
 
-                JSON.stringify({ message: `No data to return` }),
+                JSON.stringify({ message: `No data to return, please verify your inputs` }),
                 { status: 404 }
             );
         }
