@@ -139,6 +139,10 @@ export function ListUpload() {
                     <label htmlFor="icd10">ICD-10</label>
                     <input type="radio" name="options" value="icd10" id="icd10" checked={searchMode === "icd10"} onChange={handleSearchModeChange} />
                 </div>
+                <div className="flex flex-col mx-8">
+                    <label htmlFor="name">Name</label>
+                    <input type="radio" name="options" value="name" id="name" checked={searchMode === "name"} onChange={handleSearchModeChange} />
+                </div>
             </div>
             <div className="flex flex-row my-2 content-center">
                 <div className="flex flex-row my-2 content-center">
