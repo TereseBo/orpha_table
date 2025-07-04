@@ -3,7 +3,7 @@
 import { Clipboard, ArrowUpDown } from "lucide-react"
 import { ActionButtons } from "./actionbuttons"
 import { Button } from "@/components/ui/button"
-
+//TODO: Fix synonyms when searching by ICD
 export const columns = [
     {
         accessorKey: "orphacode",
@@ -92,14 +92,19 @@ export const columns = [
         header: "Synonyms",
         cell: ({ row }) => {
             const rowcontent = row.original
-            const synonymArr = rowcontent.synonyms.map((synonym, index) => {
+            const synonymArr =rowcontent.synonyms? rowcontent.synonyms.map((synonym, index) => {
 
                 return (
                     <div key={rowcontent.ORPHAcode + synonym + index}>
                         {synonym}
                     </div>
                 )
-            })
+            }):
+               
+                    <div key={rowcontent.ORPHAcode + "-" + 0}>
+                        {"-"}
+                    </div>
+                
             return (
                 <div className="flex flex-col gap-2">
                     {synonymArr}

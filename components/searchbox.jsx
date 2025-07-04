@@ -56,7 +56,7 @@ export function SearchBox() {
             setSearchResultList([])
             return
         }
-        fetch(`/api/${searchMode}/${searchTerm}`)
+        fetch(`/api/${searchMode}/term/${searchTerm}`)
             .then(response => response.json())
             .then(data => {
 

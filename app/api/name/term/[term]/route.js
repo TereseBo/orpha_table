@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { fetchApproximateNameInfo } from '../../name';
+import { fetchApproximateNameInfo } from '../../../name';
 
 export async function GET(req, { params }) {
     const name = params.term;
@@ -18,14 +18,14 @@ export async function GET(req, { params }) {
             { status: 200 }
         );
     } catch (error) {
-        if ( error.message.includes('413')) {
+        if (error.message.includes('413')) {
             return new NextResponse(
                 JSON.stringify({ message: `To many results for "${name}", please refine your search by only including the most specific term` }),
                 { status: 413 }
             );
         }
         return new NextResponse(
-            JSON.stringify({message:'Something went wrong when getting the orphacodes, please try again later'}),
+            JSON.stringify({ message: 'Something went wrong when getting the orphacodes, please try again later' }),
             { status: 500 }
         );
     }

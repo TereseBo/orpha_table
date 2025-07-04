@@ -99,7 +99,7 @@ export function ListUpload() {
 
         try {
             // Fetch data from api
-            const response = await fetch(`/api/list/${searchMode}`, {
+            const response = await fetch(`/api/${searchMode}/list`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

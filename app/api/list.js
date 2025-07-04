@@ -5,7 +5,7 @@ async function fetchOrphaForIcd10(icd10, index) {
 
     //TODO: Populate collected data with level and status and filter inactive
     //TODO: Handle errors in list fetching, allowing for return of incomplete results
-
+console.log("Obtaining data for icd10: ", icd10, " and index: ", index)
     const options = {
         method: "GET",
         headers: {
@@ -16,6 +16,7 @@ async function fetchOrphaForIcd10(icd10, index) {
 
     let diseaseList = await fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/ICD10/${icd10}`, { ...options })
         .then((values) => {
+            console.log(values)
             // If there are references, return them, else indicate no match
             if (values.References && values.References.length > 0) {
                 return values.References.map((icd10Disease) => ({
@@ -76,7 +77,7 @@ async function fetchOrphaForIcd10(icd10, index) {
                 });
             }
         });
-
+console.log(diseaseList)
         // Return only active diseases
         return diseaseList.filter(disease => disease.status === 'Active');
 
@@ -111,6 +112,8 @@ export async function fetchICD10InfoWithOrphaCodes(icd10Array, icd10Index, heade
         originalIndex: "originalIndex"
     }
 
+
+
     try {
         // Fetch Orpha codes for all ICD-10 codes in file data
         const results = await Promise.allSettled(
@@ -119,7 +122,8 @@ export async function fetchICD10InfoWithOrphaCodes(icd10Array, icd10Index, heade
                 return fetchOrphaForIcd10(row[icd10Index], index)
             })
         );
-
+console.log("obtained results")
+//console.log(results)
         let finalResults = [];
         // Add results from API calls to filedata before returning completed data
         results.forEach((result, index) => {
@@ -167,7 +171,7 @@ async function fetchOrphaForName(name, index) {
         },
     };
 
-    let diseaseList = await fetchJson([
+    let diseaseList = await Promise.allSettled([
         fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/ApproximateName/${name}`, { ...options }),
         fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/ApproximateName/${name}/Synonym`, { ...options }),
     ])
@@ -286,7 +290,7 @@ export async function fetchORPHAcodesByName(nameArray, nameIndex, headerRow = fa
                 // For each Orphanet code, duplicate the original row 
                 finalResults.push({
                     ...nameArray[index], // Copy the complete original row
-                    nameoriginal: icd10Array[index][nameIndex],//name original icd-10 for which search was performed 
+                    nameoriginal: nameArray[index][nameIndex],//name original icd-10 for which search was performed 
                     orphacode: disease.orphacode,
                     preferredTerm: disease.preferredTerm,
                     classificationLevel: disease.classificationLevel,
