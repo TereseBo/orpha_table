@@ -10,7 +10,7 @@ export async function POST(req) {
         let codecolumn = body.column - 1
         let headerRow = body.headerRow
         let inDataArray = Array.from([...indata])
-console.log(inDataArray)
+
         const diseaseData = await fetchICD10InfoWithOrphaCodes(inDataArray, codecolumn, headerRow);
  
         if (diseaseData.length === 1) {

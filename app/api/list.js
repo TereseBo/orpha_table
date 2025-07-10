@@ -3,9 +3,9 @@ import { fetchJson, fetchStatus, fetchClassificationLevel, fetchSynonyms } from 
 // Helper function to fetch ORPHA codes for a single ICD-10 code
 async function fetchOrphaForIcd10(icd10, index) {
 
-    //TODO: Populate collected data with level and status and filter inactive
+
     //TODO: Handle errors in list fetching, allowing for return of incomplete results
-console.log("Obtaining data for icd10: ", icd10, " and index: ", index)
+
     const options = {
         method: "GET",
         headers: {
@@ -16,7 +16,7 @@ console.log("Obtaining data for icd10: ", icd10, " and index: ", index)
 
     let diseaseList = await fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/ICD10/${icd10}`, { ...options })
         .then((values) => {
-            console.log(values)
+
             // If there are references, return them, else indicate no match
             if (values.References && values.References.length > 0) {
                 return values.References.map((icd10Disease) => ({
@@ -77,7 +77,7 @@ console.log("Obtaining data for icd10: ", icd10, " and index: ", index)
                 });
             }
         });
-console.log(diseaseList)
+
         // Return only active diseases
         return diseaseList.filter(disease => disease.status === 'Active');
 
@@ -122,8 +122,7 @@ export async function fetchICD10InfoWithOrphaCodes(icd10Array, icd10Index, heade
                 return fetchOrphaForIcd10(row[icd10Index], index)
             })
         );
-console.log("obtained results")
-//console.log(results)
+
         let finalResults = [];
         // Add results from API calls to filedata before returning completed data
         results.forEach((result, index) => {
