@@ -3,7 +3,7 @@ import { fetchJson, fetchStatus, fetchClassificationLevel, fetchSynonyms } from 
 // Helper function to fetch ORPHA codes for a single ICD-10 code
 async function fetchOrphaForIcd10(icd10, index) {
 
-    //TODO: Populate collected data with level and status and filter inactive
+
     //TODO: Handle errors in list fetching, allowing for return of incomplete results
 
     const options = {
@@ -16,6 +16,7 @@ async function fetchOrphaForIcd10(icd10, index) {
 
     let diseaseList = await fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/ICD10/${icd10}`, { ...options })
         .then((values) => {
+
             // If there are references, return them, else indicate no match
             if (values.References && values.References.length > 0) {
                 return values.References.map((icd10Disease) => ({
@@ -111,6 +112,8 @@ export async function fetchICD10InfoWithOrphaCodes(icd10Array, icd10Index, heade
         originalIndex: "originalIndex"
     }
 
+
+
     try {
         // Fetch Orpha codes for all ICD-10 codes in file data
         const results = await Promise.allSettled(
@@ -133,6 +136,164 @@ export async function fetchICD10InfoWithOrphaCodes(icd10Array, icd10Index, heade
                     preferredTerm: disease.preferredTerm,
                     classificationLevel: disease.classificationLevel,
                     referencesICD10: disease.referencesICD10,
+                    originalIndex: disease.originalIndex
+                });
+            });
+        });
+
+        // Sort the results to ensure the original order is maintained
+        finalResults.sort((a, b) => a.originalIndex - b.originalIndex);
+
+        //Add data corresponding to the headerrow 
+        finalResults.unshift({ ...newHeader })
+
+        return finalResults;
+
+    } catch (error) {
+        throw new Error(`Failed to fetch data: ${error.message}`);
+    }
+}
+
+
+
+// Helper function to fetch ORPHA codes by approcximate name search and approximate synonym search
+async function fetchOrphaForName(name, index) {
+
+    //TODO: Populate collected data with level and status and filter inactive
+    //TODO: Handle errors in list fetching, allowing for return of incomplete results
+
+    const options = {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            apikey: process.env.ORPHA_API_KEY,
+        },
+    };
+
+    let diseaseList = await Promise.allSettled([
+        fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/ApproximateName/${name}`, { ...options }),
+        fetchJson(`https://api.orphacode.org/EN/ClinicalEntity/ApproximateName/${name}/Synonym`, { ...options }),
+    ])
+        .then((values) => {
+            // If there are values, return them, else indicate no match
+
+            if (values && values.length > 0) {
+                return values.map((diseaseByName) => ({
+                    orphacode: diseaseByName.ORPHAcode,
+                    preferredTerm: diseaseByName["Preferred term"] || "-",
+                    originalIndex: index, // Save the original index for later sorting
+                }));
+            } else {
+                return [{
+                    orphacode: "No match",
+                    preferredTerm: "-",
+                    originalIndex: index // Save the original index for later sorting
+                }];
+            }
+        })
+        .catch(error => {
+            if (error.message.includes('404')) {
+                return [{
+                    orphacode: "No match",
+                    preferredTerm: "-",
+                    originalIndex: index // Save the original index for later sorting
+                }];
+            } else {
+
+                return [{
+                    orphacode: "Error fetching data",
+                    preferredTerm: "-",
+                    originalIndex: index // Save the original index for later sorting
+                }];
+            }
+
+        });
+
+    if (diseaseList.length === 0) {
+        return [];  // If no results, return an empty array
+    }
+
+    // Fetch additional data for each disease (status, classification level)
+    try {
+        const additionalData = await Promise.allSettled([
+            fetchStatus(diseaseList),
+            fetchClassificationLevel(diseaseList)
+        ]);
+
+        // Populate disease list with additional data found
+        //TODO: Handle missing values
+        additionalData.forEach((value) => {
+            if (value.status === 'fulfilled') {
+                diseaseList = diseaseList.map(disease => {
+                    let additional = value.value.find((obj) => obj.orphacode === disease.orphacode);
+                    if (additional !== undefined) {
+                        return { ...disease, ...additional };
+                    }
+                    return disease;
+                });
+            }
+        });
+
+        // Return only active diseases
+        return diseaseList.filter(disease => disease.status === 'Active');
+       
+
+    } catch (error) {
+        console.log("error fetching status data for collected orphacodes")
+        throw error;  // Re-throw errors from additional data fetch
+    }
+
+}
+
+//TODO: Rename column index to dataColumnIndex
+
+// Fetches ORPHAcodes from RD-CODE API by name
+export async function fetchORPHAcodesByName(nameArray, nameIndex, headerRow = false) {
+
+    let header = null
+
+    //Create a header row, retaining the values from the in-data if present
+    if (headerRow) {
+        header = nameArray.shift()
+    } else {
+        header = new Array(nameArray[0].length).fill("column", 0)
+        header = header.map((item, index) => {
+            return `${item} ${index}`
+        })
+    }
+    
+    let newHeader = {
+        ...header, // Copy the complete original row
+        nameoriginal: "original name",
+        orphacode: "orphacode",
+        preferredTerm: "preferredTerm",
+        classificationLevel: "Classification level",
+        referencesICD10: "referencesICD10",
+        originalIndex: "originalIndex"
+    }
+
+    try {
+        // Fetch Orpha codes for names in file data
+        const results = await Promise.allSettled(
+            nameArray.map((row, index) => {
+
+                return fetchOrphaForName(row[nameIndex], index)
+            })
+        );
+
+        let finalResults = [];
+        // Add results from API calls to filedata before returning completed data
+        results.forEach((result, index) => {
+            // if (result.status === 'fulfilled') {
+            result.value.forEach((disease) => {
+                // For each Orphanet code, duplicate the original row 
+                finalResults.push({
+                    ...nameArray[index], // Copy the complete original row
+                    nameoriginal: nameArray[index][nameIndex],//name original icd-10 for which search was performed 
+                    orphacode: disease.orphacode,
+                    preferredTerm: disease.preferredTerm,
+                    classificationLevel: disease.classificationLevel,
+                    //referencesICD10: disease.referencesICD10,
                     originalIndex: disease.originalIndex
                 });
             });

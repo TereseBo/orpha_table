@@ -5,7 +5,6 @@ export function ActionButtons({ disease }) {
     const removeItemFromList = useStore((state) => state.removeItemFromListResultList);
 
     function handleRemove() {
-        console.log(disease)
         removeItemFromList(disease);
     }
 

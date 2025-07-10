@@ -1,22 +1,14 @@
 import { NextResponse } from 'next/server';
-import { fetchICD10InfoWithOrphaCodes } from '@/app/api/list'
+import { fetchICD10Info } from '../../../icd10';
 
-export async function POST(req, { params }) {
+export async function GET(req, { params }) {
+    const icd10 = params.term;
 
     try {
-        const body = await req.json();
-
-        let indata = body.values
-        let codecolumn = body.column - 1
-        let headerRow = body.headerRow
-        let inDataArray = Array.from([...indata])
-
-        const diseaseData = await fetchICD10InfoWithOrphaCodes(inDataArray, codecolumn, headerRow);
- 
-        if (diseaseData.length === 1) {
+        const diseaseData = await fetchICD10Info(icd10);
+        if (diseaseData.length === 0) {
             return new NextResponse(
-
-                JSON.stringify({ message: `No data to return, please verify your inputs` }),
+                JSON.stringify({ message: `No data found for ICD-10 code ${icd10}` }),
                 { status: 404 }
             );
         }
@@ -25,7 +17,6 @@ export async function POST(req, { params }) {
             { status: 200 }
         );
     } catch (error) {
-
         if (error.message.includes('413')) {
             return new NextResponse(
                 JSON.stringify({ message: `To many results for ICD-10 "${icd10}", please choose another search method` }),

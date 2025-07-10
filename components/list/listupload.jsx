@@ -99,7 +99,7 @@ export function ListUpload() {
 
         try {
             // Fetch data from api
-            const response = await fetch(`/api/list/${searchMode}`, {
+            const response = await fetch(`/api/${searchMode}/list`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -138,6 +138,10 @@ export function ListUpload() {
                 <div className="flex flex-col mx-8">
                     <label htmlFor="icd10">ICD-10</label>
                     <input type="radio" name="options" value="icd10" id="icd10" checked={searchMode === "icd10"} onChange={handleSearchModeChange} />
+                </div>
+                <div className="flex flex-col mx-8">
+                    <label htmlFor="name">Name</label>
+                    <input type="radio" name="options" value="name" id="name" checked={searchMode === "name"} onChange={handleSearchModeChange} />
                 </div>
             </div>
             <div className="flex flex-row my-2 content-center">
