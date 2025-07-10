@@ -104,7 +104,7 @@ export async function fetchICD10InfoWithOrphaCodes(icd10Array, icd10Index, heade
     }
     let newHeader = {
         ...header, // Copy the complete original row
-        icd10original: "icd10original",
+        originalData: "ICD-10 from file",
         orphacode: "orphacode",
         preferredTerm: "preferredTerm",
         classificationLevel: "Classification level",
@@ -131,7 +131,7 @@ export async function fetchICD10InfoWithOrphaCodes(icd10Array, icd10Index, heade
                 // For each Orphanet code, duplicate the original row 
                 finalResults.push({
                     ...icd10Array[index], // Copy the complete original row
-                    icd10original: icd10Array[index][icd10Index],//name original icd-10 for which search was performed 
+                    originalData: icd10Array[index][icd10Index],//name original icd-10 for which search was performed 
                     orphacode: disease.orphacode,
                     preferredTerm: disease.preferredTerm,
                     classificationLevel: disease.classificationLevel,
@@ -167,9 +167,9 @@ async function fetchOrphaForName(name, originalIndex) {
 
     //TODO: Populate collected data with level and status and filter inactive
     //TODO: Handle errors in list fetching, allowing for return of incomplete results
-    let sanitized=name
+    let sanitized = name
     wordsToTrim.forEach(term => {
-      sanitized=  sanitized.replace(term, "")
+        sanitized = sanitized.replace(term, "")
     })
 
 
@@ -194,7 +194,7 @@ async function fetchOrphaForName(name, originalIndex) {
                     diseaseData = [...diseaseData, ...value.value];
                 }
             });
-//TODO: Check 404 handling
+            //TODO: Check 404 handling
             return diseaseData
         })
         .catch(error => {
@@ -264,7 +264,6 @@ async function fetchOrphaForName(name, originalIndex) {
 
 // Fetches ORPHAcodes from RD-CODE API by name
 export async function fetchORPHAcodesByName(nameArray, nameIndex, headerRow = false) {
-    console.log("Called fetchORPHAcodesByName function")
 
     let header = null
 
@@ -280,7 +279,7 @@ export async function fetchORPHAcodesByName(nameArray, nameIndex, headerRow = fa
 
     let newHeader = {
         ...header, // Copy the complete original row
-        nameoriginal: "original name",
+        originalData: "Name from file",
         orphacode: "orphacode",
         preferredTerm: "preferredTerm",
         classificationLevel: "Classification level",
@@ -304,10 +303,10 @@ export async function fetchORPHAcodesByName(nameArray, nameIndex, headerRow = fa
             // if (result.status === 'fulfilled') {
             result.value.forEach((disease) => {
                 // For each Orphanet code, duplicate the original row 
-                let originalRow=disease.originalIndex
+                let originalRow = disease.originalIndex
                 finalResults.push({
                     ...nameArray[originalRow], // Copy the complete original row
-                    nameoriginal: nameArray[originalRow][nameIndex],//name original for which search was performed 
+                    originalData: nameArray[originalRow][nameIndex],//name original for which search was performed 
                     orphacode: disease.orphacode,
                     preferredTerm: disease.preferredTerm,
                     classificationLevel: disease.classificationLevel,

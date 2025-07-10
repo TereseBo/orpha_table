@@ -6,7 +6,7 @@ import { ActionButtons } from "./actionbuttons"
 
 export const columns = [
     {
-        accessorKey: "icd10original",
+        accessorKey: "originalData",
         header: ({ column }) => {
 
             return (
@@ -14,7 +14,7 @@ export const columns = [
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
-                    ICD-10 from file
+                    Data from file
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             )
@@ -24,8 +24,8 @@ export const columns = [
 
             return (
                 <div className="flex flex-row gap-2 items-center justify-end mr-4">
-                    {rowcontent.icd10original}
-                    <Clipboard className="hover:bg-sky-700 rounded" onClick={() => navigator.clipboard.writeText(rowcontent.icd10original)} size={16} />
+                    {rowcontent.originalData}
+                    <Clipboard className="hover:bg-sky-700 rounded" onClick={() => navigator.clipboard.writeText(rowcontent.originalData)} size={16} />
                 </div>
             )
         },
