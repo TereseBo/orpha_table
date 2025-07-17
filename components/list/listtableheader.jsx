@@ -42,7 +42,6 @@ export function ListTableheader() {
             toast.success('Excel file created')
 
         } catch (error) {
-            console.log(error)
             toast.error('Something went wrong creating excel file')
         }
     }

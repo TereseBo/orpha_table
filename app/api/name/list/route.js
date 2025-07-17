@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { fetchORPHAcodesByName } from '@/app/api/list'
+import { fetchORPHAcodesByName } from '@/lib/serverfunctions/list'
 
-export async function POST(req, { params }) {
+export async function POST(req) {
 
     try {
         const body = await req.json();
@@ -12,7 +12,7 @@ export async function POST(req, { params }) {
         let inDataArray = Array.from([...indata])
 
         const diseaseData = await fetchORPHAcodesByName(inDataArray, namecolumn, headerRow);
- 
+
         if (diseaseData.length === 1) {
             return new NextResponse(
 
@@ -34,6 +34,22 @@ export async function POST(req, { params }) {
         }
         return new NextResponse(
             JSON.stringify({ message: 'Something went wrong when getting the orphacodes, please try again later' }),
+            { status: 500 }
+        );
+    }
+}
+
+export async function GET(
+) {
+    try {
+
+        return new NextResponse(
+            JSON.stringify({ message: `Route not implemented yet` }),
+            { status: 200 }
+        );
+    } catch (error) {
+        return new NextResponse(
+            'Something went wrong when getting the orphacode, please try again later',
             { status: 500 }
         );
     }

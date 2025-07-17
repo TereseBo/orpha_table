@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { fetchICD10Info } from '../../../icd10';
+import { fetchICD10Info } from '@/lib/serverfunctions/icd10';
 
 export async function GET(req, { params }) {
     const icd10 = params.term;
