@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { fetchICD10InfoWithOrphaCodes } from '@/app/api/list'
+import { fetchICD10InfoWithOrphaCodes } from '@/lib/serverfunctions/list'
 
 export async function POST(req) {
 
@@ -12,7 +12,7 @@ export async function POST(req) {
         let inDataArray = Array.from([...indata])
 
         const diseaseData = await fetchICD10InfoWithOrphaCodes(inDataArray, codecolumn, headerRow);
- 
+
         if (diseaseData.length === 1) {
             return new NextResponse(
 

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { fetchApproximateNameInfo } from '../../../name';
+import { fetchApproximateNameInfo } from '@/lib/serverfunctions/name';
 
 export async function GET(req, { params }) {
     const name = params.term;
