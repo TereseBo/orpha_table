@@ -11,8 +11,6 @@ export async function POST(req) {
         let headerRow = body.headerRow
         let inDataArray = Array.from([...indata])
 
-        console.log("Recieved request")
-
         const diseaseData = await fetchORPHAcodesByName(inDataArray, namecolumn, headerRow);
 
         if (diseaseData.length === 1) {
@@ -27,8 +25,6 @@ export async function POST(req) {
             { status: 200 }
         );
     } catch (error) {
-
-        console.log(error)
 
         if (error.message.includes('413')) {
             return new NextResponse(
@@ -45,8 +41,6 @@ export async function POST(req) {
 
 export async function GET(
 ) {
-
-
     try {
 
         return new NextResponse(
